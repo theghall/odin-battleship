@@ -1,12 +1,14 @@
 {
-  "name": "battleship
+  "name": "battleship",
   "version": "1.0.0",
   "description": "battleship board game",
   "private": true,
   "scripts": {
     "pbuild": "webpack --config webpack.prod.js",
     "dbuild": "webpack --display-modules --config webpack.dev.js",
-    "watch": "webpack --config webpack.dev.js --watch"
+    "watch": "webpack --config webpack.dev.js --watch",
+    "test": "jest",
+    "jest-watch": "jest --watchAll"
   },
   "repository": {
     "type": "git",
