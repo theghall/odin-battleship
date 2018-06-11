@@ -1,10 +1,10 @@
 const battleship = {
-  hulls: {
-    carrier: 5,
-    battleship: 4,
-    cruiser: 3,
-    submarine: 3,
-    destroyer: 2,
+  ships: {
+    carrier: { name: 'Carrier', hull: 5 },
+    battleship: { name: 'Battleship', hull: 4 },
+    cruiser: { name: 'Cruiser', hull: 3 },
+    submarine: { name: 'Submarine', hull: 3 },
+    destroyer: { name: 'Destroyer', hull: 2 },
   },
   getter: state => ({
     getName: () => state.name,
@@ -22,14 +22,14 @@ const battleship = {
     },
     isSunk: () => !state.hull.includes(false),
   }),
-  createShip(shipName, hullLength) {
+  createShip(ship) {
     const hull = [];
     // Mark each hull position as not hit
-    for (let i = 0; i < hullLength; i += 1) {
+    for (let i = 0; i < ship.hull; i += 1) {
       hull.push(false);
     }
     const state = {
-      name: shipName,
+      name: ship.name,
       hull: hull,
       position: { bowCoordinates: null, bowDirection: null },
     };
