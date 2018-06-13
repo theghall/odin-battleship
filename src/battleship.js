@@ -3,6 +3,7 @@ const battleship = {
   HIT: 1,
   ATTACKED: 2,
   INVALID: 3,
+
   ships: {
     carrier: { name: 'Carrier', hull: 5 },
     battleship: { name: 'Battleship', hull: 4 },
@@ -10,16 +11,19 @@ const battleship = {
     submarine: { name: 'Submarine', hull: 3 },
     destroyer: { name: 'Destroyer', hull: 2 },
   },
+
   getter: state => ({
     getName: () => state.name,
     getLength: () => state.hull.length,
   }),
+
   positionable: state => ({
     setPosition: position => {
       state.position = position;
     },
     getPosition: () => state.position,
   }),
+
   sinkable: state => ({
     hit: pos => {
       state.hull[pos] = true;
@@ -29,6 +33,7 @@ const battleship = {
     },
     isSunk: () => !state.hull.includes(false),
   }),
+
   createShip(ship) {
     const hull = [];
     // Mark each hull position as not hit
@@ -47,13 +52,7 @@ const battleship = {
       battleship.positionable(state)
     );
   },
-  validCoordinates(coordinates) {
-    return /^[A-J][1-8]$/.test(coordinates);
-  },
-  validBowDirection(bowDirection) {
-    const directions = [0, 90, 180, 270];
-    return directions.includes(bowDirection);
-  },
+
   attackable: (state, funcs) => ({
     recieveAttack: (coordinates) => {
       let hullPosition;
@@ -83,6 +82,7 @@ const battleship = {
       }
    }
   }),
+
   tokenable: (state, funcs) => ({
     placeShip: (ship, shipPosition) => {
       if (!funcs.validCoordinates(shipPosition.bowCoordinates)) {
@@ -145,6 +145,7 @@ const battleship = {
         }
       }
     },
+
     allShipsPlaced: () => {
       let allPlaced = true;
       let neededShips = [];
@@ -164,6 +165,7 @@ const battleship = {
 
       return allPlaced;
     },
+
     allShipsSunk: () => {
       let sunk = [];
 
@@ -174,35 +176,46 @@ const battleship = {
       return !sunk.includes(false);
     },
   }),
-  getRowCol(coordinates) {
-    const col = coordinates.charCodeAt(0) - 65;
-    const row = parseInt(coordinates.charAt(1), 10) - 1;
-    return {row: row, col: col};
-  },
-  getHullPosition(ship, bRow, bCol) {
-    const shipPostion = ship.getPosition();
-    const bowRowCol = funcs.getRowCol(shipPostion.bowCoordinates);
-    const bowDirection = shipPostion.bowDirection;
 
-    let position;
+  boardHelpers: {
+    validCoordinates(coordinates) {
+      return /^[A-J][1-8]$/.test(coordinates);
+    },
+    validBowDirection(bowDirection) {
+      const directions = [0, 90, 180, 270];
+    return directions.includes(bowDirection);
+    },
+    getRowCol(coordinates) {
+      const col = coordinates.charCodeAt(0) - 65;
+      const row = parseInt(coordinates.charAt(1), 10) - 1;
+      return {row: row, col: col};
+    },
+    getHullPosition(ship, bRow, bCol) {
+      const shipPostion = ship.getPosition();
+      const bowRowCol = boardHelpers.getRowCol(shipPostion.bowCoordinates);
+      const bowDirection = shipPostion.bowDirection;
 
-    switch (bowDirection) {
-      case 0:
-        position = bRow - bowRowCol.row;
-        break;
-      case 90:
-        position = bowRowCol.col - bCol;
-        break;
-      case 180:
-        position = bowRowCol.row - bRow;
-        break;
-      case 270:
-        position = bCol - bowRowCol.col;
-        break;
+      let position;
+
+      switch (bowDirection) {
+        case 0:
+          position = bRow - bowRowCol.row;
+          break;
+        case 90:
+          position = bowRowCol.col - bCol;
+          break;
+        case 180:
+          position = bowRowCol.row - bRow;
+          break;
+        case 270:
+          position = bCol - bowRowCol.col;
+          break;
+      }
+
+      return position;
     }
-
-    return position;
   },
+
   createGameboard(player) {
     const board = [[], [], [], [], [], [], [], []];
 
@@ -217,14 +230,8 @@ const battleship = {
       board: board,
       ships: [],
     };
-    const funcs = {
-      validCoordinates: battleship.validCoordinates,
-      validBowDirection: battleship.validBowDirection,
-      getRowCol: battleship.getRowCol,
-      getHullPosition: battleship.getHullPosition,
-    };
 
-    return Object.assign({}, battleship.attackable(state, funcs), battleship.tokenable(state, funcs));
+    return Object.assign({}, battleship.attackable(state, battleship.boardHelpers), battleship.tokenable(state, battleship.boardHelpers));
   },
 };
 
