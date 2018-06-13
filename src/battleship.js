@@ -54,7 +54,7 @@ const battleship = {
   },
 
   attackable: (state, helpers) => ({
-    recieveAttack: (coordinates) => {
+    receiveAttack: (coordinates) => {
       if (!helpers.validCoordinates(coordinates)) {
         return(battleship.INVALID);
       }
@@ -69,65 +69,11 @@ const battleship = {
 
   tokenable: (state, helpers) => ({
     placeShip: (ship, shipPosition) => {
-      if (!helpers.validCoordinates(shipPosition.bowCoordinates)) {
-        throw('Ship position is invalid');
-      }
+      helpers.validateShipPosition(shipPosition, helpers);
 
-      if (!helpers.validBowDirection(shipPosition.bowDirection)) {
-        throw('Ship must have a direction of 0, 90, 180 or 270');
-      }
+      helpers.validateShipPlacement(ship, shipPosition, state, helpers);
 
-      const x = helpers.getRowCol(shipPosition.bowCoordinates);
-      const row = x.row;
-      const col = x.col;
-
-      // Check if any part of ship is off board or overlaps another ship
-      let checkCol = col;
-      let checkRow = row;
-      for (let pos = 0; pos < ship.getLength(); pos += 1) {
-        if ((checkCol < 0) || (checkCol > 7) || (checkRow < 0) || (checkRow > 7)) {
-          throw('No part of ship can be placed off the board');
-        }
-        if (typeof(state.board[checkRow][checkCol]) === 'object') {
-          throw('No part of ship can overlap another ship');
-        }
-        switch (shipPosition.bowDirection) {
-          case 0:
-            checkRow += 1;
-            break;
-          case 90:
-            checkCol -= 1;
-            break;
-          case 180:
-            checkRow -= 1;
-            break;
-          case 270:
-            checkCol += 1;
-            break;
-        }
-      }
-      // Ship can be placed on board
-      ship.setPosition(shipPosition);
-      state.ships.push(ship);
-      let posRow = row;
-      let posCol = col;
-      for (let pos = 0; pos < ship.getLength(); pos += 1) {
-        state.board[posRow][posCol] = ship
-        switch (shipPosition.bowDirection) {
-          case 0:
-            posRow += 1;
-            break;
-          case 90:
-            posCol -= 1;
-            break;
-          case 180:
-            posRow -= 1;
-            break;
-          case 270:
-            posCol += 1;
-            break;
-        }
-      }
+      helpers.placeShip(ship, shipPosition, state, helpers);
     },
 
     allShipsPlaced: () => {
@@ -162,18 +108,89 @@ const battleship = {
   }),
 
   boardHelpers: {
+    calcNextRowCol(row, col, bowDirection) {
+      let newRow = row;
+      let newCol = col;
+      switch (bowDirection) {
+        case 0:
+          newRow += 1;
+          break;
+        case 90:
+          newCol -= 1;
+          break;
+        case 180:
+          newRow -= 1;
+          break;
+        case 270:
+          newCol += 1;
+          break;
+      }
+      return {newRow: newRow, newCol: newCol};
+    },
+
+    placeShip(ship, shipPosition, state, helpers) {
+      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+
+      ship.setPosition(shipPosition);
+      state.ships.push(ship);
+
+      let posRow = row;
+      let posCol = col;
+
+      for (let pos = 0; pos < ship.getLength(); pos += 1) {
+        state.board[posRow][posCol] = ship
+        const rowCol = helpers.calcNextRowCol(posRow, posCol, shipPosition.bowDirection);
+        posRow = rowCol.newRow;
+        posCol = rowCol.newCol;
+      }
+    },
+
     validCoordinates(coordinates) {
       return /^[A-J][1-8]$/.test(coordinates);
     },
+
     validBowDirection(bowDirection) {
       const directions = [0, 90, 180, 270];
-    return directions.includes(bowDirection);
+      return directions.includes(bowDirection);
     },
+
+    validateShipPlacement(ship, shipPosition, state, helpers) {
+      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+
+      // Check if any part of ship is off board or overlaps another ship
+      let checkCol = col;
+      let checkRow = row;
+
+      for (let pos = 0; pos < ship.getLength(); pos += 1) {
+        if ((checkCol < 0) || (checkCol > 7) || (checkRow < 0) || (checkRow > 7)) {
+          throw('No part of ship can be placed off the board');
+        }
+        if (typeof(state.board[checkRow][checkCol]) === 'object') {
+          throw('No part of ship can overlap another ship');
+        }
+        const rowCol = helpers.calcNextRowCol(checkRow, checkCol, shipPosition.bowDirection);
+
+        checkRow = rowCol.newRow;
+        checkCol = rowCol.newCol;
+      }
+    },
+
+    validateShipPosition(shipPosition, helpers) {
+      if (!helpers.validCoordinates(shipPosition.bowCoordinates)) {
+        throw('Ship position is invalid');
+      }
+
+      if (!helpers.validBowDirection(shipPosition.bowDirection)) {
+        throw('Ship must have a direction of 0, 90, 180 or 270');
+      }
+    },
+
     getRowCol(coordinates) {
       const col = coordinates.charCodeAt(0) - 65;
       const row = parseInt(coordinates.charAt(1), 10) - 1;
       return {row: row, col: col};
     },
+
     getHullPosition(ship, bRow, bCol) {
       const shipPostion = ship.getPosition();
       const bowRowCol = helpers.getRowCol(shipPostion.bowCoordinates);
@@ -198,6 +215,7 @@ const battleship = {
 
       return position;
     },
+
     alreadyAttacked(coordinates, state, helpers) {
       const {row, col} = helpers.getRowCol(coordinates);
       gridContent = state.board[row][col];
@@ -212,6 +230,7 @@ const battleship = {
       }
       return false;
     },
+
     markAttacked(coordinates, state, helpers) {
       const {row, col} = helpers.getRowCol(coordinates);
       gridContent = state.board[row][col];

@@ -84,27 +84,27 @@ describe('Testing gameboard...', () => {
   test('it should record a a miss on an attack', () => {
     const gameboard = battleship.createGameboard('Jack');
 
-    expect(gameboard.recieveAttack('A8')).toBe(battleship.MISS);
+    expect(gameboard.receiveAttack('A8')).toBe(battleship.MISS);
   });
 
   test('it should reject an invalid coordinate for an attack', () => {
     const gameboard = battleship.createGameboard('Jack');
 
-    expect(gameboard.recieveAttack('')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('A')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('8')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('a7')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('K7')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('A0')).toBe(battleship.INVALID);
-    expect(gameboard.recieveAttack('A9')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('8')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('a7')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('K7')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A0')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A9')).toBe(battleship.INVALID);
    });
 
   test('it should return a coordinate already attacked as attacked', () => {
     const gameboard = battleship.createGameboard('Jack');
     const cooordinates = 'A7';
 
-    gameboard.recieveAttack(cooordinates);
-    expect(gameboard.recieveAttack(cooordinates)).toBe(battleship.ATTACKED);
+    gameboard.receiveAttack(cooordinates);
+    expect(gameboard.receiveAttack(cooordinates)).toBe(battleship.ATTACKED);
   });
 
   test('it should not allow invalid ship position when being placed', () => {
