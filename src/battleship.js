@@ -53,47 +53,31 @@ const battleship = {
     );
   },
 
-  attackable: (state, funcs) => ({
+  attackable: (state, helpers) => ({
     recieveAttack: (coordinates) => {
-      let hullPosition;
-
-      if (!funcs.validCoordinates(coordinates)) {
+      if (!helpers.validCoordinates(coordinates)) {
         return(battleship.INVALID);
       }
-      
-      const {row, col} = funcs.getRowCol(coordinates);
 
-      if (state.board[row][col] === '' ) {
-        state.board[row][col] = battleship.MISS;
-        return battleship.MISS;
-      } else if (state.board[row][col] !== '') {
-        if (state.board[row][col] === 'object') {
-          ship = state.board[row][col];
-          hullPosition = funcs.getHullPosition(ship, row, col);
-          if (isHit(hullPosition)) {
-            return battleship.ATTACKED;
-          } else {
-            ship.hit(hullPosition);
-            return battleship.HIT;  
-          }
-        } else if (state.board[row][col] === battleship.MISS) {
-            return battleship.ATTACKED;
-        }
-      }
+      if (!helpers.alreadyAttacked(coordinates, state, helpers)) {
+        return helpers.markAttacked(coordinates, state, helpers);
+      } else {
+        return battleship.ATTACKED;
+     }
    }
   }),
 
-  tokenable: (state, funcs) => ({
+  tokenable: (state, helpers) => ({
     placeShip: (ship, shipPosition) => {
-      if (!funcs.validCoordinates(shipPosition.bowCoordinates)) {
+      if (!helpers.validCoordinates(shipPosition.bowCoordinates)) {
         throw('Ship position is invalid');
       }
 
-      if (!funcs.validBowDirection(shipPosition.bowDirection)) {
+      if (!helpers.validBowDirection(shipPosition.bowDirection)) {
         throw('Ship must have a direction of 0, 90, 180 or 270');
       }
 
-      const x = funcs.getRowCol(shipPosition.bowCoordinates);
+      const x = helpers.getRowCol(shipPosition.bowCoordinates);
       const row = x.row;
       const col = x.col;
 
@@ -192,7 +176,7 @@ const battleship = {
     },
     getHullPosition(ship, bRow, bCol) {
       const shipPostion = ship.getPosition();
-      const bowRowCol = boardHelpers.getRowCol(shipPostion.bowCoordinates);
+      const bowRowCol = helpers.getRowCol(shipPostion.bowCoordinates);
       const bowDirection = shipPostion.bowDirection;
 
       let position;
@@ -213,7 +197,35 @@ const battleship = {
       }
 
       return position;
-    }
+    },
+    alreadyAttacked(coordinates, state, helpers) {
+      const {row, col} = helpers.getRowCol(coordinates);
+      gridContent = state.board[row][col];
+
+      if (typeof(gridContent) === 'object') {
+        const hullPosition = helpers.getHullPosition( gridContent, row, col);
+        if (gridContent.isHit(hullPosition)) {
+          return true;
+        }
+      } else if (gridContent === battleship.MISS) {
+        return true;
+      }
+      return false;
+    },
+    markAttacked(coordinates, state, helpers) {
+      const {row, col} = helpers.getRowCol(coordinates);
+      gridContent = state.board[row][col];
+
+      if (typeof(gridContent) === 'object') {
+        const hullPosition = helpers.getHullPosition( gridContent, row, col);
+        gridContent.hit(hullPosition);
+        return battleship.HIT;
+      }
+      else {
+        state.board[row][col] = battleship.MISS;
+        return battleship.MISS;
+      }
+    },
   },
 
   createGameboard(player) {
