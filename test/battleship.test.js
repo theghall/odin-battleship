@@ -102,7 +102,8 @@ describe('Testing gameboard...', () => {
     expect(gameboard.receiveAttack('a7')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('K7')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('A0')).toBe(battleship.INVALID);
-    expect(gameboard.receiveAttack('A9')).toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A10')).not.toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A11')).toBe(battleship.INVALID);
    });
 
   test('it should return a coordinate already attacked as attacked', () => {
@@ -129,6 +130,8 @@ describe('Testing gameboard...', () => {
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 0})).not.toThrow();
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 180})).toThrow();
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A4', bowDirection: 180})).toThrow();
+    expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'F1', bowDirection: 270})).not.toThrow();
+    expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'G1', bowDirection: 270})).toThrow();
   });
 
   test('it should not allow ships to overlap', () => {

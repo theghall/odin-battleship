@@ -150,7 +150,7 @@ const battleship = {
     },
 
     validCoordinates(coordinates) {
-      return /^[A-J][1-8]$/.test(coordinates);
+      return /^[A-J][1-8]0?$/.test(coordinates);
     },
 
     validBowDirection(bowDirection) {
@@ -166,7 +166,7 @@ const battleship = {
       let checkRow = row;
 
       for (let pos = 0; pos < ship.getLength(); pos += 1) {
-        if ((checkCol < 0) || (checkCol > 7) || (checkRow < 0) || (checkRow > 7)) {
+        if ((checkCol < 0) || (checkCol > 9) || (checkRow < 0) || (checkRow > 9)) {
           throw('No part of ship can be placed off the board');
         }
         if (typeof(state.board[checkRow][checkCol]) === 'object') {
