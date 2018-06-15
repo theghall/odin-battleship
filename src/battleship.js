@@ -273,7 +273,7 @@ const battleship = {
     getStatus: () => state.gameStatus,
   }),
 
-  phaseable: state => ({
+  phaseable: (state, helpers)  => ({
     finalizePlacement: () => {
 
       if (state.phase !== 'setup') {
@@ -310,28 +310,38 @@ const battleship = {
       const result = state.activeGameboard.receiveAttack(coordinates);
 
       if (state.activeGameboard.allShipsSunk()) {
-        if (state.activeGameboard === board1) {
-          winner = player2;
-        } else {
-          winner = player1;
-        }
-        state.phase = 'over'
-        state.gameStatus = `${winner} is the winner`;
+        helpers.setGameOver(state, player1, player2, board1);
       } 
       
       if (state.phase !== 'over') {
-        if (state.activeGameboard === board2) {
-          state.gameStatus = `${player2} is thinking...`;
-          state.activeGameboard = board1;
-        } else {
-          state.gameStatus = `${player1}, your turn`;
-          state.activeGameboard = board2;
-        }
+        helpers.setActiveGameboard(state, player1, player2, board1, board2);
       }
 
       return result;
     },
   }),
+
+  gcHelpers: {
+    setGameOver(state, player1, player2, board1) {
+      if (state.activeGameboard === board1) {
+        state.winner = player2;
+      } else {
+        state.winner = player1;
+      }
+      state.phase = 'over'
+      state.gameStatus = `${state.winner} is the winner`;
+    },
+
+    setActiveGameboard(state, player1 ,player2, board1, board2) {
+      if (state.activeGameboard === board2) {
+        state.gameStatus = `${player2} is thinking...`;
+        state.activeGameboard = board1;
+      } else {
+        state.gameStatus = `${player1}, your turn`;
+        state.activeGameboard = board2;
+      }
+    },
+  },
 
   createGameController(board1, board2, displayController) {
     const state = {
@@ -342,7 +352,7 @@ const battleship = {
       gameStatus: 'Place your ships',
    };
 
-   return Object.assign({}, battleship.reportable(state), battleship.phaseable(state));
+   return Object.assign({}, battleship.reportable(state), battleship.phaseable(state, battleship.gcHelpers));
   },
 };
 
