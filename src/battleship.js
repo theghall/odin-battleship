@@ -12,7 +12,7 @@ const battleship = {
     destroyer: { name: 'Destroyer', hull: 2 },
   },
 
-  getter: state => ({
+  shipGetter: state => ({
     getName: () => state.name,
     getLength: () => state.hull.length,
   }),
@@ -47,11 +47,15 @@ const battleship = {
     };
     return Object.assign(
       {},
-      battleship.getter(state),
+      battleship.shipGetter(state),
       battleship.sinkable(state),
       battleship.positionable(state)
     );
   },
+
+  boardGetter: state => ({
+    getPlayerName: () => state.player,
+  }),
 
   attackable: (state, helpers) => ({
     receiveAttack: (coordinates) => {
@@ -191,7 +195,7 @@ const battleship = {
       return {row: row, col: col};
     },
 
-    getHullPosition(ship, bRow, bCol) {
+    getHullPosition(ship, bRow, bCol, helpers) {
       const shipPostion = ship.getPosition();
       const bowRowCol = helpers.getRowCol(shipPostion.bowCoordinates);
       const bowDirection = shipPostion.bowDirection;
@@ -221,7 +225,7 @@ const battleship = {
       gridContent = state.board[row][col];
 
       if (typeof(gridContent) === 'object') {
-        const hullPosition = helpers.getHullPosition( gridContent, row, col);
+        const hullPosition = helpers.getHullPosition( gridContent, row, col, helpers);
         if (gridContent.isHit(hullPosition)) {
           return true;
         }
@@ -236,7 +240,7 @@ const battleship = {
       gridContent = state.board[row][col];
 
       if (typeof(gridContent) === 'object') {
-        const hullPosition = helpers.getHullPosition( gridContent, row, col);
+        const hullPosition = helpers.getHullPosition( gridContent, row, col, helpers);
         gridContent.hit(hullPosition);
         return battleship.HIT;
       }
@@ -262,7 +266,73 @@ const battleship = {
       ships: [],
     };
 
-    return Object.assign({}, battleship.attackable(state, battleship.boardHelpers), battleship.tokenable(state, battleship.boardHelpers));
+    return Object.assign({}, battleship.boardGetter(state), battleship.attackable(state, battleship.boardHelpers), battleship.tokenable(state, battleship.boardHelpers));
+  },
+
+  reportable: state => ({
+    getStatus: () => state.gameStatus,
+  }),
+
+  phaseable: state => ({
+    finalizePlacement: () => {
+      const board1 = state.gameboards[0];
+      const board2 = state.gameboards[1];
+      const player1 = board1.getPlayerName();
+      const player2 = board2.getPlayerName();
+
+      if (board1.allShipsPlaced() && board2.allShipsPlaced()) {
+        state.gameStatus = `${player1}, your turn`;
+        state.activeGameboard = board2;
+        state.phase = 'playing';
+      } else if (board1.allShipsPlaced()) {
+        state.gameStatus = `${player2} is thinking...`;
+      } else if (board2.allShipsPlaced()) {
+        state.gameStatus = `${player1} is thinking...`;
+      }
+    },
+
+    attack: (coordinates) => {
+      const board1 = state.gameboards[0];
+      const board2 = state.gameboards[1];
+      const player1 = board1.getPlayerName();
+      const player2 = board2.getPlayerName();
+
+      const result = state.activeGameboard.receiveAttack(coordinates);
+
+      if (state.activeGameboard.allShipsSunk()) {
+        if (state.activeGameboard === board1) {
+          winner = player2;
+        } else {
+          winner = player1;
+        }
+        state.phase = 'over'
+        state.gameStatus = `${winner} is the winner`;
+      } 
+      
+      if (state.phase !== 'over') {
+        if (state.activeGameboard === board2) {
+          state.gameStatus = `${player2} is thinking...`;
+          state.activeGameboard = board1;
+        } else {
+          state.gameStatus = `${player1}, your turn`;
+          state.activeGameboard = board2;
+        }
+      }
+
+      return result;
+    },
+  }),
+
+  createGameController(board1, board2, displayController) {
+    const state = {
+      phase: 'setup',
+      activeGameboard: null,
+      gameboards: [board1, board2],
+      winner: null,
+      gameStatus: 'Place your ships',
+   };
+
+   return Object.assign({}, battleship.reportable(state), battleship.phaseable(state));
   },
 };
 

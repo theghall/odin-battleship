@@ -81,6 +81,12 @@ describe('Testing ships...', () => {
 
 describe('Testing gameboard...', () => {
 
+  test('it should return correct player name for a board', () => {
+    const gameboard = battleship.createGameboard('Jack');
+
+    expect(gameboard.getPlayerName()).toMatch('Jack');
+  });
+
   test('it should record a a miss on an attack', () => {
     const gameboard = battleship.createGameboard('Jack');
 
@@ -137,6 +143,15 @@ describe('Testing gameboard...', () => {
     expect(() => gameboard.placeShip(aDestroyer, {bowCoordinates: 'B5', bowDirection: 0})).toThrow();
     expect(() => gameboard.placeShip(aDestroyer, {bowCoordinates: 'C1', bowDirection: 90})).toThrow();
 
+  });
+
+  test('it should report a hit on an attack', () => {
+    const gameboard = battleship.createGameboard('Jack');
+    const aCarrier = battleship.createShip(battleship.ships.carrier);
+
+    gameboard.placeShip(aCarrier, {bowCoordinates: 'B1', bowDirection: 0});
+
+    expect(gameboard.receiveAttack('B1')).toBe(battleship.HIT);
   });
 
   test('it should report all ships placed', () => {
@@ -196,4 +211,150 @@ describe('Testing gameboard...', () => {
     }
     expect(gameboard.allShipsSunk()).toBeTruthy();
   });
+});
+
+describe('Testing gameController...', () => {
+  
+  test('it should report the correct initial status', () => {
+    const gameboard1 = battleship.createGameboard('Player1');
+    const gameboard2 = battleship.createGameboard('Computer');
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    expect(gameController.getStatus()).toMatch('Place your ships');
+  });
+
+  test('it should report correct status if both players finalize thier setups', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsPlacedFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // gameboard1 ready first
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+    expect(gameController.getStatus()).toMatch(`${player2} is thinking...`);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+    expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
+
+    // gameboard2 ready first
+    gameboard1.allShipsPlaced = allShipsPlacedFalse.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+    expect(gameController.getStatus()).toMatch(`${player1} is thinking...`);
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+    expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
+  });
+
+  test('it should report the correct status after a player attacks', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard1.allShipsSunk = allShipsSunkFalse.bind(gameboard1);
+    gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch(`${player2} is thinking...`);
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
+  });
+
+  test('it should return the correct result of the attack', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+
+    const aDestroyer = battleship.createShip(battleship.ships.destroyer);
+    gameboard2.placeShip(aDestroyer, {bowCoordinates: 'A1', bowDirection: 0});
+
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard1.allShipsSunk = allShipsSunkFalse.bind(gameboard1);
+    gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+    expect(gameController.attack('A1')).toBe(battleship.HIT);
+    // Switch players
+    gameController.attack('B1'); 
+    expect(gameController.attack('A1')).toBe(battleship.ATTACKED);
+    // Switch players
+    gameController.attack('B2');
+    expect(gameController.attack('B1')).toBe(battleship.MISS);
+    // Switch players
+    gameController.attack('B3');
+    expect(gameController.attack('B9')).toBe(battleship.INVALID);
+  });
+  
+  it('should report player1 as the winner', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard2.allShipsSunk = allShipsSunkTrue.bind(gameboard2);
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch(`${player1} is the winner`);
+  });
+
+  it('should report player2 as the winner', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+    gameController.attack('A1');
+    gameboard1.allShipsSunk = allShipsSunkTrue.bind(gameboard1);
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch(`${player2} is the winner`);
+  });
+
+
 });
