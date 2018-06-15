@@ -223,7 +223,7 @@ describe('Testing gameController...', () => {
     expect(gameController.getStatus()).toMatch('Place your ships');
   });
 
-  test('it should report correct status if both players finalize thier setups', () => {
+  test('it should report correct status if player1 finalizes first', () => {
     const player1 = 'Player1';
     const player2 = 'Computer';
 
@@ -234,15 +234,27 @@ describe('Testing gameController...', () => {
     const gameboard2 = battleship.createGameboard(player2);
     const gameController = battleship.createGameController(gameboard1, gameboard2, null);
 
-    // gameboard1 ready first
     gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedFalse.bind(gameboard1);
     gameController.finalizePlacement();
     expect(gameController.getStatus()).toMatch(`${player2} is thinking...`);
     gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
     gameController.finalizePlacement();
     expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
 
-    // gameboard2 ready first
+  });
+
+  test('it should report correct status if player2 finalizes first', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsPlacedFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
     gameboard1.allShipsPlaced = allShipsPlacedFalse.bind(gameboard1);
     gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
     gameController.finalizePlacement();
@@ -356,5 +368,64 @@ describe('Testing gameController...', () => {
     expect(gameController.getStatus()).toMatch(`${player2} is the winner`);
   });
 
+  it('should throw an error if finalizePlacement called during game play', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    expect(() => gameController.finalizePlacement()).not.toThrow();
+    expect(() => gameController.finalizePlacement()).toThrow('An internal error occured');
+  });
+
+  test('it should throw an error if attack called during setup', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    expect(() => gameController.attack('A1')).toThrow('An internal error occured');
+  });
+
+  test('it should throw an error if finalizePlacement or attack called when game is over', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+    gameController.attack('A1');
+    gameboard1.allShipsSunk = allShipsSunkTrue.bind(gameboard1);
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch(`${player2} is the winner`);
+    expect(() => gameController.finalizePlacement()).toThrow('An internal error occured');
+    expect(() => gameController.attack()).toThrow('An internal error occured');
+  });
 
 });

@@ -275,6 +275,11 @@ const battleship = {
 
   phaseable: state => ({
     finalizePlacement: () => {
+
+      if (state.phase !== 'setup') {
+        throw('An internal error occured');
+      }
+
       const board1 = state.gameboards[0];
       const board2 = state.gameboards[1];
       const player1 = board1.getPlayerName();
@@ -292,6 +297,11 @@ const battleship = {
     },
 
     attack: (coordinates) => {
+
+      if (state.phase !== 'playing') {
+        throw('An internal error occured');
+      }
+
       const board1 = state.gameboards[0];
       const board2 = state.gameboards[1];
       const player1 = board1.getPlayerName();
