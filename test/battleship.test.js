@@ -38,7 +38,7 @@ describe('Testing ships...', () => {
     expect(position.bowDirection).toBe(bowDirection);
   });
 
-  test('it should report a ship with no hits as not sunk', () => {
+test('it should report a ship with no hits as not sunk', () => {
     const aBattleship = battleship.createShip(battleship.ships.battleship);
 
     expect(aBattleship.isSunk()).toBeFalsy;
@@ -127,6 +127,7 @@ describe('Testing gameboard...', () => {
     const aCarrier = battleship.createShip(battleship.ships.carrier);
 
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 0})).not.toThrow();
+    expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'F6', bowDirection: 0})).not.toThrow();
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 180})).toThrow();
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A4', bowDirection: 180})).toThrow();
   });
@@ -428,19 +429,54 @@ describe('Testing gameController...', () => {
     expect(() => gameController.attack()).toThrow('An internal error occured');
   });
 
+});
   describe('Testing computer player', () => {
 
-    test('it should report all ships placed', () => {
+    test('it should report all ships placed for setup1', () => {
       const player1 = 'Player1';
       const player2 = 'Computer';
 
       const gameboard1 = battleship.createGameboard(player1);
       const gameboard2 = battleship.createGameboard(player2);
       const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+      Math.floor = jest.fn().mockImplementation(function() { return 0; });
       
       battleship.setUpComputerBoard(gameboard2);
       expect(gameboard2.allShipsPlaced()).toBeTruthy();
     });
-  });
 
-});
+    test('it should report all ships placed for setup2', () => {
+      const player1 = 'Player1';
+      const player2 = 'Computer';
+
+      const gameboard1 = battleship.createGameboard(player1);
+      const gameboard2 = battleship.createGameboard(player2);
+      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+      Math.floor = jest.fn().mockImplementation(function() { return 1; });
+      
+      battleship.setUpComputerBoard(gameboard2);
+      expect(gameboard2.allShipsPlaced()).toBeTruthy();
+    });
+
+    test('it should report all ships placed for setup3', () => {
+      const player1 = 'Player1';
+      const player2 = 'Computer';
+
+      const gameboard1 = battleship.createGameboard(player1);
+      const gameboard2 = battleship.createGameboard(player2);
+      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+      Math.floor = jest.fn().mockImplementation(function() { return 2; });
+      
+      battleship.setUpComputerBoard(gameboard2);
+      expect(gameboard2.allShipsPlaced()).toBeTruthy();
+    });
+
+    test('it should generate valid attack coordinates', () => {
+      for (let i = 0; i < 10000; i += 1) {
+        expect(battleship.getComputerAttackCoordinates()).toMatch(/^[A-J][1-9]0?$/);
+      }
+    });
+ });
