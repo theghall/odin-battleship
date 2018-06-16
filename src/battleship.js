@@ -12,6 +12,31 @@ const battleship = {
     destroyer: { name: 'Destroyer', hull: 2 },
   },
 
+  computerSetup1: [ 
+ 
+    {ship: battleship.ships.carrier, bowCoordinates: 'A4', bowDirection: 270},
+    {ship: battleship.ships.battleship, bowCoordinates: 'F6', bowDirection: 0},
+    {ship: battleship.ships.cruiser, bowCoordinates: 'I2', bowDirection: 0},
+    {ship: battleship.ships.submarine, bowCoordinates: 'I8', bowDirection: 0},
+    {ship: battleship.ships.destroyer, bowCoordinates: 'B8', bowDirection: 0},
+  ],
+  
+  computerSetup2: [
+    {ship: battleship.ships.carrier, bowCoordinates: 'F2', bowDirection: 270},
+    {ship: battleship.ships.battleship, bowCoordinates: 'F5', bowDirection: 270},
+    {ship: battleship.ships.cruiser, bowCoordinates: 'F7', bowDirection: 270},
+    {ship: battleship.ships.submarine, bowCoordinates: 'C6', bowDirection: 0},
+    {ship: battleship.ships.destroyer, bowCoordinates: 'C2', bowDirection: 0}
+  ],
+
+  computerSetup3: [
+    {ship: battleship.ships.carrier, bowCoordinates: 'B5', bowDirection: 0},
+    {ship: battleship.ships.battleship, bowCoordinates: 'G2', bowDirection: 0},
+    {ship: battleship.ships.cruiser, bowCoordinates: 'D8', bowDirection: 0},
+    {ship: battleship.ships.submarine, bowCoordinates: 'J5', bowDirection: 0},
+    {ship: battleship.ships.destroyer, bowCoordinates: 'J1', bowDirection: 0}
+  ],
+
   shipGetter: state => ({
     getName: () => state.name,
     getLength: () => state.hull.length,
@@ -343,6 +368,9 @@ const battleship = {
    };
 
    return Object.assign({}, battleship.reportable(state), battleship.phaseable(state));
+  },
+
+  setUpComputerBoard(gameboard) {
   },
 };
 

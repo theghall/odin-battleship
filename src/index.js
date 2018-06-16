@@ -5,3 +5,7 @@ require('normalize.css');
 /* eslint-disable import/first */
 import './assets/css/style.scss';
 /* eslint-enable import/first */
+
+const battleship = require('./battleship.js');
+
+battleship.createShip(battleship.computerSetup1[0]);

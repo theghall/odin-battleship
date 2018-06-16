@@ -428,4 +428,19 @@ describe('Testing gameController...', () => {
     expect(() => gameController.attack()).toThrow('An internal error occured');
   });
 
+  describe('Testing computer player', () => {
+
+    test('it should report all ships placed', () => {
+      const player1 = 'Player1';
+      const player2 = 'Computer';
+
+      const gameboard1 = battleship.createGameboard(player1);
+      const gameboard2 = battleship.createGameboard(player2);
+      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+      
+      battleship.setUpComputerBoard(gameboard2);
+      expect(gameboard2.allShipsPlaced()).toBeTruthy();
+    });
+  });
+
 });
