@@ -12,6 +12,30 @@ const battleship = {
     destroyer: { name: 'Destroyer', hull: 2 },
   },
 
+  computerSetup1: () => [
+    {ship: battleship.ships.carrier, position: {bowCoordinates: 'A4', bowDirection: 270}},
+    {ship: battleship.ships.battleship, position: {bowCoordinates: 'F6', bowDirection: 0}},
+    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'I2', bowDirection: 0}},
+    {ship: battleship.ships.submarine, position: {bowCoordinates: 'I8', bowDirection: 0}},
+    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'B8', bowDirection: 0}},
+  ],
+  
+  computerSetup2: () => [
+    {ship: battleship.ships.carrier, position: {bowCoordinates: 'F2', bowDirection: 270}},
+    {ship: battleship.ships.battleship, position: {bowCoordinates: 'F5', bowDirection: 270}},
+    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'F7', bowDirection: 270}},
+    {ship: battleship.ships.submarine, position: {bowCoordinates: 'C6', bowDirection: 0}},
+    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'C2', bowDirection: 0}}
+  ],
+
+  computerSetup3: () => [
+    {ship: battleship.ships.carrier, position: {bowCoordinates: 'B5', bowDirection: 0}},
+    {ship: battleship.ships.battleship, position: {bowCoordinates: 'G2', bowDirection: 0}},
+    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'D8', bowDirection: 0}},
+    {ship: battleship.ships.submarine, position: {bowCoordinates: 'J5', bowDirection: 0}},
+    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'J1', bowDirection: 0}}
+  ],
+
   shipGetter: state => ({
     getName: () => state.name,
     getLength: () => state.hull.length,
@@ -252,10 +276,10 @@ const battleship = {
   },
 
   createGameboard(player) {
-    const board = [[], [], [], [], [], [], [], []];
+    const board = [[], [], [], [], [], [], [], [], [], []];
 
-    for (let row = 0; row < 8; row += 1) {
-      for (let col = 0; col < 8; col += 1) {
+    for (let row = 0; row < 10; row += 1) {
+      for (let col = 0; col < 10; col += 1) {
         board[row][col] = '';
       }
     }
@@ -354,6 +378,24 @@ const battleship = {
 
    return Object.assign({}, battleship.reportable(state), battleship.phaseable(state, battleship.gcHelpers));
   },
+
+  setUpComputerBoard(gameboard) {
+    const setups = [battleship.computerSetup1, battleship.computerSetup2, battleship.computerSetup3];
+
+    const setup = setups[Math.floor(Math.random() * 3)]();
+
+    for (let i = 0; i < setup.length; i += 1) {
+      const aShip = battleship.createShip(setup[i].ship);
+      gameboard.placeShip(aShip, setup[i].position);
+    }
+  },
+
+  getComputerAttackCoordinates() {
+    const col = String.fromCharCode(65 + Math.floor(Math.random() * 10));
+    const row = Math.floor(Math.random() * 10) + 1;
+    return `${col}${row}`;
+  },
+
 };
 
 module.exports = battleship;
