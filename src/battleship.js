@@ -174,7 +174,7 @@ const battleship = {
     },
 
     validCoordinates(coordinates) {
-      return /^[A-J][1-8]0?$/.test(coordinates);
+      return /^[A-J][1-9]0?$/.test(coordinates);
     },
 
     validBowDirection(bowDirection) {

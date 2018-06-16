@@ -96,13 +96,15 @@ describe('Testing gameboard...', () => {
   test('it should reject an invalid coordinate for an attack', () => {
     const gameboard = battleship.createGameboard('Jack');
 
+    expect(gameboard.receiveAttack('A8')).not.toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A9')).not.toBe(battleship.INVALID);
+    expect(gameboard.receiveAttack('A10')).not.toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('A')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('8')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('a7')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('K7')).toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('A0')).toBe(battleship.INVALID);
-    expect(gameboard.receiveAttack('A10')).not.toBe(battleship.INVALID);
     expect(gameboard.receiveAttack('A11')).toBe(battleship.INVALID);
    });
 
@@ -323,7 +325,7 @@ describe('Testing gameController...', () => {
     expect(gameController.attack('B1')).toBe(battleship.MISS);
     // Switch players
     gameController.attack('B3');
-    expect(gameController.attack('B9')).toBe(battleship.INVALID);
+    expect(gameController.attack('B11')).toBe(battleship.INVALID);
   });
   
   it('should report player1 as the winner', () => {
