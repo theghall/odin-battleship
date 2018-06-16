@@ -217,6 +217,55 @@ describe('Testing gameboard...', () => {
     }
     expect(gameboard.allShipsSunk()).toBeTruthy();
   });
+
+  test('it should sink a ship with bow position of 0', () => {
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const gameboard = battleship.createGameboard('Jack');
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'A1', bowDirection: 0});
+
+    for (let j = 0; j < aCruiser.getLength(); j += 1) {
+      aCruiser.hit(j);
+    }
+
+    expect(aCruiser.isSunk()).toBeTruthy();
+  });
+
+  test('it should sink a ship with bow position of 90', () => {
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const gameboard = battleship.createGameboard('Jack');
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'C1', bowDirection: 90});
+
+    for (let j = 0; j < aCruiser.getLength(); j += 1) {
+      aCruiser.hit(j);
+    }
+
+    expect(aCruiser.isSunk()).toBeTruthy();
+  });
+
+  test('it should sink a ship with bow position of 180', () => {
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const gameboard = battleship.createGameboard('Jack');
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'C4', bowDirection: 180});
+
+    for (let j = 0; j < aCruiser.getLength(); j += 1) {
+      aCruiser.hit(j);
+    }
+
+    expect(aCruiser.isSunk()).toBeTruthy();
+  });
+
+  test('it should sink a ship with bow position of 270', () => {
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const gameboard = battleship.createGameboard('Jack');
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'C4', bowDirection: 270});
+
+    for (let j = 0; j < aCruiser.getLength(); j += 1) {
+      aCruiser.hit(j);
+    }
+
+    expect(aCruiser.isSunk()).toBeTruthy();
+  });
+
 });
 
 describe('Testing gameController...', () => {
