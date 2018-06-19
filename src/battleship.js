@@ -104,6 +104,24 @@ const battleship = {
       helpers.placeShip(ship, shipPosition, state, helpers);
     },
 
+    removeShip: (ship) => {
+      const shipPosition = ship.getPosition();
+      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+
+      ship.setPosition({bowCoordinates: null, bowDirection: null});
+      state.ships.splice(state.ships.indexOf(ship));
+
+      let posRow = row;
+      let posCol = col;
+
+      for (let pos = 0; pos < ship.getLength(); pos += 1) {
+        state.board[posRow][posCol] = '';
+        const rowCol = helpers.calcNextRowCol(posRow, posCol, shipPosition.bowDirection);
+        posRow = rowCol.newRow;
+        posCol = rowCol.newCol;
+      }
+    },
+
     allShipsPlaced: () => {
       let allPlaced = true;
       let neededShips = [];
@@ -133,6 +151,19 @@ const battleship = {
 
       return !sunk.includes(false);
     },
+
+    getShip: (shipDesc) => {
+      let ship = null;
+
+      for (let i = 0; i < state.ships.length; i += 1) {
+        if (state.ships[i].getName() === shipDesc.name) {
+          ship = state.ships[i];
+          break;
+        }
+      }
+
+      return ship;
+    }
   }),
 
   boardHelpers: {

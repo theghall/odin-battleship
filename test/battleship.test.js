@@ -1,4 +1,5 @@
 const battleship = require('../src/battleship');
+const battleshipUI = require('../src/battleshipUI');
 
 describe('Testing ships...', () => {
   test('it should create a ship with the correct name', () => {
@@ -124,7 +125,6 @@ describe('Testing gameboard...', () => {
     expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 120})).toThrow();
   });
 
-
   test('it should not allow any part of a ship to be off the gameboard', () => {
     const gameboard = battleship.createGameboard('Jack');
     const aCarrier = battleship.createShip(battleship.ships.carrier);
@@ -151,6 +151,18 @@ describe('Testing gameboard...', () => {
 
   });
 
+  test('it should remove a ship from the gameboard', () => {
+    const gameboard = battleship.createGameboard('Jack');
+    const aCarrier = battleship.createShip(battleship.ships.carrier);
+
+    gameboard.placeShip(aCarrier, {bowCoordinates: 'B1', bowDirection: 0});
+    gameboard.removeShip(aCarrier);
+    expect(aCarrier.getPosition().bowCoordinates).toBeNull();
+    expect(aCarrier.getPosition().bowDirection).toBeNull();
+    expect(() => gameboard.placeShip(aCarrier, {bowCoordinates: 'B1', bowDirection: 0})).not.toThrow();
+  });
+
+
   test('it should report a hit on an attack', () => {
     const gameboard = battleship.createGameboard('Jack');
     const aCarrier = battleship.createShip(battleship.ships.carrier);
@@ -158,6 +170,28 @@ describe('Testing gameboard...', () => {
     gameboard.placeShip(aCarrier, {bowCoordinates: 'B1', bowDirection: 0});
 
     expect(gameboard.receiveAttack('B1')).toBe(battleship.HIT);
+  });
+
+  test('it should return the correct ship object', () => {
+    const aCarrier = battleship.createShip(battleship.ships.carrier);
+    const aBattleship = battleship.createShip(battleship.ships.battleship);
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const aSubmarine = battleship.createShip(battleship.ships.submarine);
+    const aDestroyer = battleship.createShip(battleship.ships.destroyer);
+    
+    const gameboard = battleship.createGameboard('Jack');
+
+    gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 0});
+    gameboard.placeShip(aBattleship, {bowCoordinates: 'B1', bowDirection: 0});
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'C1', bowDirection: 0});
+    gameboard.placeShip(aSubmarine, {bowCoordinates: 'D1', bowDirection: 0});
+    gameboard.placeShip(aDestroyer, {bowCoordinates: 'E1', bowDirection: 0});
+
+    expect(gameboard.getShip(battleship.ships.carrier)).toEqual(aCarrier);
+    expect(gameboard.getShip(battleship.ships.battleship)).toEqual(aBattleship);
+    expect(gameboard.getShip(battleship.ships.cruiser)).toEqual(aCruiser);
+    expect(gameboard.getShip(battleship.ships.submarine)).toEqual(aSubmarine);
+    expect(gameboard.getShip(battleship.ships.destroyer)).toEqual(aDestroyer);
   });
 
   test('it should report all ships placed', () => {
@@ -182,6 +216,28 @@ describe('Testing gameboard...', () => {
 
     expect(gameboard.allShipsPlaced()).toBeTruthy();
   });
+
+  test('removing a ship should cause allShipsPlaced to return false', () => {
+    const aCarrier = battleship.createShip(battleship.ships.carrier);
+    const aBattleship = battleship.createShip(battleship.ships.battleship);
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const aSubmarine = battleship.createShip(battleship.ships.submarine);
+    const aDestroyer = battleship.createShip(battleship.ships.destroyer);
+    
+    const gameboard = battleship.createGameboard('Jack');
+
+    gameboard.placeShip(aCarrier, {bowCoordinates: 'A1', bowDirection: 0});
+    gameboard.placeShip(aBattleship, {bowCoordinates: 'B1', bowDirection: 0});
+    gameboard.placeShip(aCruiser, {bowCoordinates: 'C1', bowDirection: 0});
+    gameboard.placeShip(aSubmarine, {bowCoordinates: 'D1', bowDirection: 0});
+    gameboard.placeShip(aDestroyer, {bowCoordinates: 'E1', bowDirection: 0});
+
+    expect(gameboard.allShipsPlaced()).toBeTruthy();
+    gameboard.removeShip(aCarrier);
+    expect(gameboard.allShipsPlaced()).toBeDefined();
+    expect(gameboard.allShipsPlaced()).toBeFalsy();
+  });
+
 
   test('it should report all ships sunk', () => {
     const aCarrier = battleship.createShip(battleship.ships.carrier);
@@ -485,55 +541,64 @@ describe('Testing gameController...', () => {
     expect(() => gameController.finalizePlacement()).toThrow('An internal error occured');
     expect(() => gameController.attack()).toThrow('An internal error occured');
   });
-
 });
-  describe('Testing computer player', () => {
 
-    test('it should report all ships placed for setup1', () => {
-      const player1 = 'Player1';
-      const player2 = 'Computer';
+describe('Testing computer player', () => {
+  test('it should report all ships placed for setup1', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
 
-      const gameboard1 = battleship.createGameboard(player1);
-      const gameboard2 = battleship.createGameboard(player2);
-      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
 
-      Math.floor = jest.fn().mockImplementation(function() { return 0; });
-      
-      battleship.setUpComputerBoard(gameboard2);
-      expect(gameboard2.allShipsPlaced()).toBeTruthy();
-    });
+    Math.floor = jest.fn().mockImplementation(function() { return 0; });
 
-    test('it should report all ships placed for setup2', () => {
-      const player1 = 'Player1';
-      const player2 = 'Computer';
+    battleship.setUpComputerBoard(gameboard2);
+    expect(gameboard2.allShipsPlaced()).toBeTruthy();
+  });
 
-      const gameboard1 = battleship.createGameboard(player1);
-      const gameboard2 = battleship.createGameboard(player2);
-      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+  test('it should report all ships placed for setup2', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
 
-      Math.floor = jest.fn().mockImplementation(function() { return 1; });
-      
-      battleship.setUpComputerBoard(gameboard2);
-      expect(gameboard2.allShipsPlaced()).toBeTruthy();
-    });
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
 
-    test('it should report all ships placed for setup3', () => {
-      const player1 = 'Player1';
-      const player2 = 'Computer';
+    Math.floor = jest.fn().mockImplementation(function() { return 1; });
 
-      const gameboard1 = battleship.createGameboard(player1);
-      const gameboard2 = battleship.createGameboard(player2);
-      const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+    battleship.setUpComputerBoard(gameboard2);
+    expect(gameboard2.allShipsPlaced()).toBeTruthy();
+  });
 
-      Math.floor = jest.fn().mockImplementation(function() { return 2; });
-      
-      battleship.setUpComputerBoard(gameboard2);
-      expect(gameboard2.allShipsPlaced()).toBeTruthy();
-    });
+  test('it should report all ships placed for setup3', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
 
-    test('it should generate valid attack coordinates', () => {
-      for (let i = 0; i < 10000; i += 1) {
-        expect(battleship.getComputerAttackCoordinates()).toMatch(/^[A-J][1-9]0?$/);
-      }
-    });
- });
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    Math.floor = jest.fn().mockImplementation(function() { return 2; });
+
+    battleship.setUpComputerBoard(gameboard2);
+    expect(gameboard2.allShipsPlaced()).toBeTruthy();
+  });
+
+  test('it should generate valid attack coordinates', () => {
+    for (let i = 0; i < 10000; i += 1) {
+      expect(battleship.getComputerAttackCoordinates()).toMatch(/^[A-J][1-9]0?$/);
+    }
+  });
+});
+
+describe('Test UI support functions...', () => {
+  test('it should return correct coordinates', () => {
+    expect(battleshipUI.getGridCoordinates(1, 1)).toMatch('A1');
+    expect(battleshipUI.getGridCoordinates(1, 2)).toMatch('B1');
+    expect(battleshipUI.getGridCoordinates(1, 10)).toMatch('J1');
+    expect(battleshipUI.getGridCoordinates(2, 1)).toMatch('A2');
+    expect(battleshipUI.getGridCoordinates(2, 2)).toMatch('B2');
+  });
+});
