@@ -246,7 +246,7 @@ const battleship = {
 
     getRowCol(coordinates) {
       const col = coordinates.charCodeAt(0) - 65;
-      const row = parseInt(coordinates.charAt(1), 10) - 1;
+      const row = parseInt(coordinates.substring(1,3), 10) - 1;
       return {row: row, col: col};
     },
 

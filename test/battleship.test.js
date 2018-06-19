@@ -81,7 +81,6 @@ test('it should report a ship with no hits as not sunk', () => {
 });
 
 describe('Testing gameboard...', () => {
-
   test('it should return correct player name for a board', () => {
     const gameboard = battleship.createGameboard('Jack');
 
