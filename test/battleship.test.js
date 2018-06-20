@@ -328,15 +328,16 @@ describe('Testing gameboard...', () => {
 
 describe('Testing gameController...', () => {
   
-  test('it should report the correct initial status', () => {
+  test('it should report the correct initial status and game phase', () => {
     const gameboard1 = battleship.createGameboard('Player1');
     const gameboard2 = battleship.createGameboard('Computer');
     const gameController = battleship.createGameController(gameboard1, gameboard2, null);
 
     expect(gameController.getStatus()).toMatch('Place your ships');
+    expect(gameController.getPhase()).toMatch('setup');
   });
 
-  test('it should report correct status if player1 finalizes first', () => {
+  test('it should report correct status and phase if player1 finalizes first', () => {
     const player1 = 'Player1';
     const player2 = 'Computer';
 
@@ -354,10 +355,11 @@ describe('Testing gameController...', () => {
     gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
     gameController.finalizePlacement();
     expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
+    expect(gameController.getPhase()).toMatch('playing');
 
   });
 
-  test('it should report correct status if player2 finalizes first', () => {
+  test('it should report correct status and phase if player2 finalizes first', () => {
     const player1 = 'Player1';
     const player2 = 'Computer';
 
@@ -375,6 +377,7 @@ describe('Testing gameController...', () => {
     gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
     gameController.finalizePlacement();
     expect(gameController.getStatus()).toMatch(`${player1}, your turn`);
+    expect(gameController.getPhase()).toMatch('playing');
   });
 
   test('it should report the correct status after a player attacks', () => {
@@ -423,19 +426,57 @@ describe('Testing gameController...', () => {
 
     gameboard1.allShipsSunk = allShipsSunkFalse.bind(gameboard1);
     gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+    // First player attacks
     expect(gameController.attack('A1')).toBe(battleship.HIT);
-    // Switch players
-    gameController.attack('B1'); 
+    // Second player attacks
+    gameController.attack('B1');
+    // First Player attacks
     expect(gameController.attack('A1')).toBe(battleship.ATTACKED);
-    // Switch players
+    // First player needs to make a valid attack
+    gameController.attack('C1');
+    // Second Player attacks
     gameController.attack('B2');
+    // First Player attacks
     expect(gameController.attack('B1')).toBe(battleship.MISS);
-    // Switch players
+    // Second Player attacks
     gameController.attack('B3');
+    // First Player attacks
     expect(gameController.attack('B11')).toBe(battleship.INVALID);
   });
+
+  test('it should not change status of game if player attacks same square twice', () => {
+    const player1 = 'Player1';
+    const player2 = 'Computer';
+
+    const allShipsPlacedTrue = jest.fn().mockImplementation(function() { return true; });
+    const allShipsSunkFalse = jest.fn().mockImplementation(function() { return false; });
+
+    const gameboard1 = battleship.createGameboard(player1);
+    const gameboard2 = battleship.createGameboard(player2);
+
+    const aDestroyer = battleship.createShip(battleship.ships.destroyer);
+    gameboard2.placeShip(aDestroyer, {bowCoordinates: 'A1', bowDirection: 0});
+
+    const gameController = battleship.createGameController(gameboard1, gameboard2, null);
+
+    // Get game state to correct state
+    gameboard1.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameboard2.allShipsPlaced = allShipsPlacedTrue.bind(gameboard1);
+    gameController.finalizePlacement();
+
+    gameboard1.allShipsSunk = allShipsSunkFalse.bind(gameboard1);
+    gameboard2.allShipsSunk = allShipsSunkFalse.bind(gameboard2);
+
+    // First player attacks
+    gameController.attack('A1');
+    // Second player attacks
+    gameController.attack('B1');
+    // First player attacks
+    gameController.attack('A1');
+    expect(gameController.getStatus()).toMatch('Player1, your turn');
+  });
   
-  it('should report player1 as the winner', () => {
+  it('should report player1 as the winner and report correct phase', () => {
     const player1 = 'Player1';
     const player2 = 'Computer';
 
@@ -455,6 +496,7 @@ describe('Testing gameController...', () => {
     gameboard2.allShipsSunk = allShipsSunkTrue.bind(gameboard2);
     gameController.attack('A1');
     expect(gameController.getStatus()).toMatch(`${player1} is the winner`);
+    expect(gameController.getPhase()).toMatch('over');
   });
 
   it('should report player2 as the winner', () => {
@@ -479,6 +521,7 @@ describe('Testing gameController...', () => {
     gameboard1.allShipsSunk = allShipsSunkTrue.bind(gameboard1);
     gameController.attack('A1');
     expect(gameController.getStatus()).toMatch(`${player2} is the winner`);
+    expect(gameController.getPhase()).toMatch('over');
   });
 
   it('should throw an error if finalizePlacement called during game play', () => {

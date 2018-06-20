@@ -1,5 +1,10 @@
 const battleship = require('./battleship');
 
+const smallExplosion = require('./assets/graphics/explosion10x10.png');
+const largeExplosion = require('./assets/graphics/explosion20x20.png');
+const smallSplash = require('./assets/graphics/splash10x10.jpg');
+const largeSplash = require('./assets/graphics/splash20x20.jpg');
+
 const battleshipUI = {
   interfaces: {
     playerBoard: null,
@@ -129,6 +134,94 @@ const battleshipUI = {
     }
   },
 
+  removePlacement() {
+    const placement = document.getElementById('placement');
+    placement.parentNode.removeChild(placement);
+  },
+
+  minimizePlayerBoard() {
+    const playerBoard = document.getElementById('player-board');
+    playerBoard.classList.add('minimize');
+  },
+
+  addAttackGrid() {
+    const rootElem = battleshipUI.getRootElement();
+    const computerGrid = battleshipUI.createBattleshipGrid('computer-board');
+    computerGrid.addEventListener('click', battleshipUI.listeners.attackHandler);
+    rootElem.appendChild(computerGrid);
+  },
+
+  buildAttackScreen() {
+    battleshipUI.removePlacement();
+    battleshipUI.minimizePlayerBoard();
+    battleshipUI.addAttackGrid();
+  },
+
+  setImage(cell, image) {
+    cell.innerHTML = `<img src="${image}">`;
+  },
+
+  markPlayerResult(cell, result) {
+    switch(result) {
+      case battleship.HIT:
+        battleshipUI.setImage(cell, largeExplosion);
+        break;
+      case battleship.MISS:
+        battleshipUI.setImage(cell, largeSplash);
+        break;
+      }
+  },
+
+  markComputerResult(attackCoordinates, result) {
+    const cell = document.querySelector(`#player-board #${attackCoordinates}`);
+
+    switch(result) {
+      case battleship.HIT:
+        battleshipUI.setImage(cell, smallExplosion);
+        break;
+      case battleship.MISS:
+        battleshipUI.setImage(cell, smallSplash);
+        break;
+    }
+  },
+
+  doPlayerAttack(cell) {
+    const playerResult = battleshipUI.interfaces.gameController.attack(cell.id);
+
+    if (playerResult === battleship.HIT || playerResult === battleship.MISS) {
+      battleshipUI.markPlayerResult(cell,playerResult);
+      battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+    } else {
+      alert('That square has already been attacked');
+    }
+
+    return playerResult;
+  },
+
+  doComputerAttack() {
+    let attackCoordinates = null;
+    let computerResult = null;
+
+    while (computerResult !== battleship.HIT && computerResult !== battleship.MISS) {
+      attackCoordinates = battleship.getComputerAttackCoordinates();
+      try {
+        computerResult = battleshipUI.interfaces.gameController.attack(attackCoordinates);
+      } catch (e) {
+        alert(e);
+        break;
+      }
+
+      if (computerResult === battleship.INVALID) {
+        alert(`An internal error occured. Computer tried to attack ${attackCoordinates}`);
+        break;
+      }
+    }
+
+    battleshipUI.markComputerResult(attackCoordinates, computerResult);
+
+    battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+  },
+
   listeners: {
     placeHandler(e) {
       e.preventDefault();
@@ -148,8 +241,29 @@ const battleshipUI = {
       battleshipUI.removeShip(shipName);
     },
 
+    attackHandler(e) {
+      e.preventDefault();
+      const cell = (e.target.nodeName === 'IMG' ? e.target.parentNode : e.target);
+
+      let gamePhase = battleshipUI.interfaces.gameController.getPhase();
+
+      if (gamePhase !== 'over') {
+        const result = battleshipUI.doPlayerAttack(cell);
+
+        gamePhase = battleshipUI.interfaces.gameController.getPhase();
+
+        if (result !== battleship.ATTACKED && gamePhase !== 'over') {
+          battleshipUI.doComputerAttack();
+        }
+      }
+    },
+
     finalizePlacementHandler(e) {
       e.preventDefault();
+
+      battleshipUI.interfaces.gameController.finalizePlacement();
+      battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+      battleshipUI.buildAttackScreen();
     },
   },
 

@@ -14,14 +14,26 @@ module.exports = {
     path: path.resolve(__dirname, 'dist')
   },
   module: {
-     rules: [
-	   { 
-		 test: /\.(css|sass|scss)$/,
-		 use: ExtractSass.extract({fallback: 'style-loader', use: ['css-loader', 'sass-loader']})
-	   }
-     ]
+    rules: [
+      { 
+        test: /\.(css|sass|scss)$/,
+        use: ExtractSass.extract({fallback: 'style-loader', use: ['css-loader', 'sass-loader']})
+      },
+      {
+        test: /\.(png|svg|jpg|gif)$/,
+        use: [
+          {
+            loader: 'file-loader',
+            options: { name: '[name].[ext]', outputPath: 'assets/graphics' }
+          }
+        ]
+      }
+    ]
+   },
+   resolve: {
+     symlinks: false
    },
    plugins: [
-	 ExtractSass
+   ExtractSass
    ]
 };

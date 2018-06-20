@@ -18,7 +18,8 @@ body {
 }
 
 /* Gameboard */
-#player-board {
+#player-board,
+#computer-board {
   width: 330px;
   height: 330px;
   display: grid;
@@ -31,6 +32,11 @@ body {
 .cell {
   border: solid black 1px;
   background: lightblue;
+  cursor: crosshair;
+}
+
+.cell img {
+  min-height: 100%;
 }
 
 .row-header {
@@ -46,6 +52,12 @@ body {
 
 .gray {
   background: gray;
+}
+
+.minimize {
+  width: 200px !important;
+  height: 200px !important;
+  font-size: 11px !important;
 }
 
 /* Placement */

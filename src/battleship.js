@@ -368,12 +368,13 @@ const battleship = {
         helpers.setGameOver(state, player1, player2, board1);
       } 
       
-      if (state.phase !== 'over') {
+      if (state.phase !== 'over' && result !== battleship.ATTACKED) {
         helpers.setActiveGameboard(state, player1, player2, board1, board2);
       }
 
       return result;
     },
+    getPhase: () => state.phase,
   }),
 
   gcHelpers: {
