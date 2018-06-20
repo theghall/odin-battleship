@@ -312,6 +312,29 @@ body {
   margin-left: 30px; }
 
 /* pages */
+#welcome {
+  height: 100px;
+  width: 450px;
+  margin: 0 auto;
+  margin-top: 150px;
+  background-color: lightblue;
+  border-radius: 5px;
+  border: solid 2px black; }
+
+#welcome p {
+  width: 200px;
+  margin: 0 auto;
+  margin-bottom: 5px; }
+
+#welcome form {
+  width: 400px;
+  margin: 0 auto; }
+
+#welcome input {
+  margin: 0;
+  margin-top: 5px;
+  margin-left: 5px; }
+
 #setup-page {
   display: grid;
   width: 740px;

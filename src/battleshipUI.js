@@ -314,6 +314,27 @@ const battleshipUI = {
   },
 
   listeners: {
+    handleNameForm(e) {
+      e.preventDefault();
+
+      const form = e.target.parentNode;
+      const playerName = form.querySelector('input[name="player-name"]');
+
+
+      if (playerName.value != '') {
+        const welcome = document.getElementById('welcome');
+        welcome.parentNode.removeChild(welcome);
+
+        battleshipUI.interfaces.playerBoard = battleship.createGameboard(playerName.value);
+        battleshipUI.interfaces.computerBoard = battleship.createGameboard('Computer');
+        battleship.setUpComputerBoard(battleshipUI.interfaces.computerBoard);
+        battleshipUI.interfaces.gameController = battleship.createGameController(battleshipUI.interfaces.playerBoard, battleshipUI.interfaces.computerBoard);
+        battleshipUI.buildInitalPage();
+      } else {
+        alert('Name must not be blank.');
+      }
+    },
+
     placeHandler(e) {
       e.preventDefault();
 
@@ -549,11 +570,43 @@ const battleshipUI = {
     battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
   },
 
+  buildNameForm() {
+    const rootElement = battleshipUI.getRootElement();
+
+    const div = battleshipUI.createWrapperElement('welcome');
+    const p = document.createElement('p');
+    p.textContent = 'Welcome to Battleship!';
+    div.appendChild(p);
+
+    const form = document.createElement('form');
+    form.id = 'player-name';
+    form.setAttribute('action', '#');
+   
+    const label = document.createElement('label');
+    label.setAttribute('for', 'player-name');
+    label.textContent = 'Name:';
+    form.appendChild(label);
+   
+    const input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    input.setAttribute('name', 'player-name');
+    input.setAttribute('required', 'required');
+    form.appendChild(input);
+
+    const submit = document.createElement('input');
+    submit.setAttribute('type', 'submit');
+    submit.setAttribute('value', 'Enter Game');
+    submit.classList.add('btn');
+    form.append(submit);
+
+    submit.addEventListener('click', battleshipUI.listeners.handleNameForm);
+
+    div.append(form);
+    rootElement.appendChild(div);
+  },
+
   init(playerBoard, computerBoard, gameController) {
-    battleshipUI.interfaces.playerBoard = playerBoard;
-    battleshipUI.interfaces.computerBoard = computerBoard;
-    battleshipUI.interfaces.gameController = gameController;
-    battleshipUI.buildInitalPage();
+    battleshipUI.buildNameForm();
   },
 
 };

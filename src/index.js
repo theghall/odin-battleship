@@ -10,12 +10,7 @@ const battleship = require('./battleship');
 const battleshipUI = require('./battleshipUI');
 
 function ready() {
-  const player = window.prompt('Enter your name');
-  const computerBoard = battleship.createGameboard('Computer');
-  battleship.setUpComputerBoard(computerBoard);
-  const playerBoard = battleship.createGameboard(player);
-  const gameController = battleship.createGameController(playerBoard, computerBoard);
-  battleshipUI.init(playerBoard, computerBoard, gameController);
+  battleshipUI.init();
 }
 
 document.addEventListener('DOMContentLoaded', ready);
