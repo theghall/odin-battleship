@@ -8,6 +8,7 @@ const largeSplash = require('./assets/graphics/splash20x20.jpg');
 const battleshipUI = {
   interfaces: {
     playerBoard: null,
+    computerBoard: null,
     gameController: null,
   },
 
@@ -144,8 +145,8 @@ const battleshipUI = {
     }
   },
 
-  removePlacement() {
-    const placement = document.getElementById('placement');
+  removeElement(id) {
+    const placement = document.getElementById(id);
     placement.parentNode.removeChild(placement);
   },
 
@@ -155,17 +156,62 @@ const battleshipUI = {
     playerBoard.classList.add('minimize');
   },
 
-  addAttackGrid() {
-    const rootElem = battleshipUI.getRootElement();
+  createAttackGrid() {
     const computerGrid = battleshipUI.createBattleshipGrid('computer-board');
     computerGrid.addEventListener('click', battleshipUI.listeners.attackHandler);
-    rootElem.appendChild(computerGrid);
+    return computerGrid;
   },
 
-  buildAttackScreen() {
-    battleshipUI.removePlacement();
+  addAttackPageRow1(attackWrapper) {
+    // Add empty cell
+    attackWrapper.appendChild(document.createElement('div'));
+    //  Add messages cell
+    const messages = battleshipUI.createWrapperElement('messages');
+    messages.appendChild(battleshipUI.createWrapperElement('status'));
+    messages.appendChild(battleshipUI.createWrapperElement('info'));
+    attackWrapper.appendChild(messages);
+    // Add empty cell
+    attackWrapper.appendChild(document.createElement('div'));
+  },
+
+  addAttackPageRow2(attackWrapper, oldPlayerBoard) {
+    // Add Player sideboard
+    const playerSideBoard = battleshipUI.createWrapperElement('player-sideboard');
+    playerSideBoard.appendChild(oldPlayerBoard);
+    playerSideBoard.appendChild(battleshipUI.createWrapperElement('player-sunk'));
+    attackWrapper.appendChild(playerSideBoard);
+    // Add Attack grid
+    attackWrapper.appendChild(battleshipUI.createAttackGrid());
+    // Add computer sideboard
+    const computerSideBoard = battleshipUI.createWrapperElement('computer-sideboard');
+    computerSideBoard.appendChild(battleshipUI.createWrapperElement('computer-sunk'));
+    attackWrapper.appendChild(computerSideBoard);
+  },
+
+  updateAllStatus() {
+    battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+    battleshipUI.updateInfo('Click on a square to attack it');
+    battleshipUI.updatePlayerSideboard();
+    battleshipUI.updateComputerSideboard();
+  },
+
+  buildAttackPage() {
+    const rootElement = battleshipUI.getRootElement();
+    const playerBoard = document.getElementById('player-board');
+
     battleshipUI.minimizePlayerBoard();
-    battleshipUI.addAttackGrid();
+    const oldPlayerBoard = playerBoard.parentNode.removeChild(playerBoard);
+
+    battleshipUI.removeElement('setup-page');
+
+    const attackWrapper = battleshipUI.createWrapperElement('attack-page');
+
+    battleshipUI.addAttackPageRow1(attackWrapper);
+    battleshipUI.addAttackPageRow2(attackWrapper, oldPlayerBoard);
+
+    rootElement.appendChild(attackWrapper);
+
+    battleshipUI.updateAllStatus();
   },
 
   setImage(cell, image) {
@@ -196,6 +242,37 @@ const battleshipUI = {
     }
   },
 
+  updateShipsSunk(elem, title, sunkShips) {
+    const newElem = battleshipUI.createWrapperElement(elem.id);
+    const ul = document.createElement('ul');
+    const listTitle = document.createElement('p');
+    listTitle.textContent = title;
+
+    newElem.appendChild(listTitle);
+    newElem.appendChild(ul);
+
+    for (let i = 0; i < sunkShips.length; i += 1) {
+      const li = document.createElement('li');
+      li.textContent = sunkShips[i];
+      ul.appendChild(li);
+    }
+    const parentElem = elem.parentNode;
+    parentElem.replaceChild(newElem, elem);
+  },
+
+  updatePlayerSideboard() {
+    const playerShipsSunkElem = document.getElementById('player-sunk');
+    const playerShipsSunk = battleshipUI.interfaces.playerBoard.getSunkShips();
+
+    battleshipUI.updateShipsSunk(playerShipsSunkElem, 'Your ships sunk:', playerShipsSunk);
+  },
+
+  updateComputerSideboard() {
+    const computerShipsSunkElem = document.getElementById('computer-sunk');
+    const computerShipsSunk = battleshipUI.interfaces.computerBoard.getSunkShips();
+
+    battleshipUI.updateShipsSunk(computerShipsSunkElem, 'Computer ships sunk:', computerShipsSunk);
+  },
 
   doPlayerAttack(cell) {
     const playerResult = battleshipUI.interfaces.gameController.attack(cell.id);
@@ -203,8 +280,9 @@ const battleshipUI = {
     if (playerResult === battleship.HIT || playerResult === battleship.MISS) {
       battleshipUI.markPlayerResult(cell,playerResult);
       battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+      battleshipUI.updateComputerSideboard();
     } else {
-      alert('That square has already been attacked');
+      battleshipUI.updateInfo('That square has already been attacked');
     }
 
     return playerResult;
@@ -227,6 +305,7 @@ const battleshipUI = {
         alert(`An internal error occured. Computer tried to attack ${attackCoordinates}`);
         break;
       }
+      battleshipUI.updatePlayerSideboard();
     }
 
     battleshipUI.markComputerResult(attackCoordinates, computerResult);
@@ -281,7 +360,7 @@ const battleshipUI = {
 
       battleshipUI.interfaces.gameController.finalizePlacement();
       battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
-      battleshipUI.buildAttackScreen();
+      battleshipUI.buildAttackPage();
     },
   },
 
@@ -470,8 +549,9 @@ const battleshipUI = {
     battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
   },
 
-  init(playerBoard, gameController) {
+  init(playerBoard, computerBoard, gameController) {
     battleshipUI.interfaces.playerBoard = playerBoard;
+    battleshipUI.interfaces.computerBoard = computerBoard;
     battleshipUI.interfaces.gameController = gameController;
     battleshipUI.buildInitalPage();
   },

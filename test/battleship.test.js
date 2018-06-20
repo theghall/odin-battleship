@@ -1,6 +1,22 @@
 const battleship = require('../src/battleship');
 const battleshipUI = require('../src/battleshipUI');
 
+function sinkShip(ship) {
+  for (let i = 0; i < ship.getLength(); i += 1) {
+    ship.hit(i);
+  }
+}
+
+function sinkAllShips(gameboard, ships) {
+  for (let i = 0; i < ships.length; i += 1) {
+    let aShip = ships[i];
+    expect(gameboard.allShipsSunk()).toBeFalsy();
+    for (let j = 0; j < aShip.getLength(); j += 1) {
+      aShip.hit(j);
+    }
+  }
+}
+
 describe('Testing ships...', () => {
   test('it should create a ship with the correct name', () => {
     const aBattleship = battleship.createShip(battleship.ships.battleship);
@@ -263,13 +279,8 @@ describe('Testing gameboard...', () => {
     expect(gameboard.allShipsSunk()).toBeDefined();
     expect(gameboard.allShipsSunk()).toBeFalsy();
 
-    for (let i = 0; i < ships.length; i += 1) {
-      let aShip = ships[i];
-      expect(gameboard.allShipsSunk()).toBeFalsy();
-      for (let j = 0; j < aShip.getLength(); j += 1) {
-        aShip.hit(j);
-      }
-    }
+    sinkAllShips(gameboard, ships);
+
     expect(gameboard.allShipsSunk()).toBeTruthy();
   });
 
@@ -582,6 +593,43 @@ describe('Testing gameController...', () => {
     expect(gameController.getStatus()).toMatch(`${player2} is the winner`);
     expect(() => gameController.finalizePlacement()).toThrow('An internal error occured');
     expect(() => gameController.attack()).toThrow('An internal error occured');
+  });
+
+  test('it should return a correct list of ships sunk', () => {
+    const aCarrier = battleship.createShip(battleship.ships.carrier);
+    const aBattleship = battleship.createShip(battleship.ships.battleship);
+    const aCruiser = battleship.createShip(battleship.ships.cruiser);
+    const aSubmarine = battleship.createShip(battleship.ships.submarine);
+    const aDestroyer = battleship.createShip(battleship.ships.destroyer);
+
+    const ships = [aCarrier, aBattleship, aCruiser, aSubmarine, aDestroyer];
+    const positions = [
+      {bowCoordinates: 'A1', bowDirection: 0},
+      {bowCoordinates: 'B1', bowDirection: 0},
+      {bowCoordinates: 'C1', bowDirection: 0},
+      {bowCoordinates: 'D1', bowDirection: 0},
+      {bowCoordinates: 'E1', bowDirection: 0},
+    ];
+
+    const gameboard1 = battleship.createGameboard('Jack');
+
+    for (let i = 0; i < ships.length; i += 1) {
+      gameboard1.placeShip(ships[i], positions[i]);
+    }
+
+    expect(gameboard1.getSunkShips().length).toBe(0);
+    gameboard1.receiveAttack('A1');
+    gameboard1.receiveAttack('A2');
+    gameboard1.receiveAttack('A3');
+    gameboard1.receiveAttack('A4');
+    gameboard1.receiveAttack('A5');
+    expect(gameboard1.getSunkShips().length).toBe(1);
+    expect(gameboard1.getSunkShips()).toContain(battleship.ships.carrier.name);
+    gameboard1.receiveAttack('C1');
+    gameboard1.receiveAttack('C2');
+    gameboard1.receiveAttack('C3');
+    expect(gameboard1.getSunkShips().length).toBe(2);
+    expect(gameboard1.getSunkShips()).toContain(battleship.ships.cruiser.name);
   });
 });
 

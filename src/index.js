@@ -15,7 +15,7 @@ function ready() {
   battleship.setUpComputerBoard(computerBoard);
   const playerBoard = battleship.createGameboard(player);
   const gameController = battleship.createGameController(playerBoard, computerBoard);
-  battleshipUI.init(playerBoard, gameController);
+  battleshipUI.init(playerBoard, computerBoard, gameController);
 }
 
 document.addEventListener('DOMContentLoaded', ready);

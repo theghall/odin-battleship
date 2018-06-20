@@ -307,6 +307,7 @@ body {
   background: lightgrey;
   border-radius: 5px; }
 
+#info,
 #status {
   margin-left: 30px; }
 
@@ -317,6 +318,40 @@ body {
   height: 430px;
   grid-template-columns: repeat(2, 1fr);
   grid-template-rows: 25px 400px; }
+
+#attack-page {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: 50px 400px; }
+
+#messages {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: repeat(2, 1fr); }
+
+#player-sideboard {
+  display: grid;
+  grid-template-columns: 1 fr;
+  grid-template-rows: repeat(2, 1fr); }
+
+#player-board {
+  margin-top: 18px;
+  justify-self: center; }
+
+#player-sunk {
+  justify-self: center; }
+
+#computer-sideboard {
+  display: grid;
+  grid-template-columns: 1 fr;
+  grid-template-rows: 1fr; }
+
+ul {
+  list-style: none; }
+
+#computer-sunk {
+  margin: 0;
+  margin-top: 30px; }
 
 /* Gameboard */
 .battle-grid {

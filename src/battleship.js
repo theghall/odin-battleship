@@ -163,7 +163,18 @@ const battleship = {
       }
 
       return ship;
-    }
+    },
+    getSunkShips: () => {
+      let sunkShips = [];
+
+      for (let i = 0; i < state.ships.length; i += 1) {
+        if (state.ships[i].isSunk()) {
+          sunkShips.push(state.ships[i].getName());
+        }
+      }
+
+      return sunkShips;
+    },
   }),
 
   boardHelpers: {
