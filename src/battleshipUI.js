@@ -107,6 +107,7 @@ const battleshipUI = {
       battleshipUI.markSquares(shipObject);
     } catch (e) {
       battleshipUI.updateInfo(e);
+      throw(e);
     }
   },
 
@@ -139,12 +140,8 @@ const battleshipUI = {
       battleshipUI.getShipDesc(shipName)
     );
 
-    if (shipObject === null) {
-      battleshipUI.updateInfo(`${shipName} is not on the board`);
-    } else {
-      battleshipUI.clearSquares(shipObject);
-      battleshipUI.interfaces.playerBoard.removeShip(shipObject);
-    }
+    battleshipUI.clearSquares(shipObject);
+    battleshipUI.interfaces.playerBoard.removeShip(shipObject);
   },
 
   removeElement(id) {
@@ -422,10 +419,17 @@ const battleshipUI = {
       );
 
       battleshipUI.clearInfo();
-      battleshipUI.placeShip(shipName, {
-        bowCoordinates: bowCoordinatesVal,
-        bowDirection: bowDirection,
-      });
+
+      try {
+        battleshipUI.placeShip(shipName, {
+          bowCoordinates: bowCoordinatesVal,
+          bowDirection: bowDirection,
+        });
+        e.target.setAttribute('disabled', 'disabled');
+        e.target.nextSibling.removeAttribute('disabled');
+      } catch (e) {
+        // Just doing a try to see if ship placed successfully
+      }
     },
 
     removeHandler(e) {
@@ -436,6 +440,8 @@ const battleshipUI = {
 
       battleshipUI.clearInfo();
       battleshipUI.removeShip(shipName);
+      e.target.setAttribute('disabled', 'disabled');
+      e.target.previousSibling.removeAttribute('disabled');
     },
 
     attackHandler(e) {
@@ -573,9 +579,12 @@ const battleshipUI = {
     return td;
   },
 
-  createButton(content, callback) {
+  createButton(content, callback, disable = false) {
     const button = document.createElement('button');
     button.setAttribute('type', 'button');
+    if (disable) {
+      button.setAttribute('disabled', 'disabled');
+    }
     button.textContent = content;
     button.classList.add('btn');
     button.addEventListener('click', callback);
@@ -590,7 +599,7 @@ const battleshipUI = {
       battleshipUI.createButton('Place', battleshipUI.listeners.placeHandler)
     );
     td.appendChild(
-      battleshipUI.createButton('Remove', battleshipUI.listeners.removeHandler)
+      battleshipUI.createButton('Remove', battleshipUI.listeners.removeHandler, true)
     );
 
     return td;
