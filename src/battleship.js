@@ -162,7 +162,7 @@ const battleship = {
         }
       }
 
-      return ship;
+      return Object.assign({}, ship);
     },
     getSunkShips: () => {
       let sunkShips = [];
