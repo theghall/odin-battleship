@@ -103,11 +103,11 @@ const battleshipUI = {
 
     try {
       battleshipUI.interfaces.playerBoard.placeShip(shipObject, position);
+      battleshipUI.markSquares(shipObject);
     } catch(e) {
       battleshipUI.updateInfo(e);
     }
 
-    battleshipUI.markSquares(shipObject);
   },
 
   getShipDesc(shipName) {
