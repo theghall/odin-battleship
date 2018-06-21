@@ -313,6 +313,38 @@ const battleshipUI = {
     battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
   },
 
+  startNewGame(playerName) {
+    const rootElement = battleshipUI.getRootElement();
+    const child = rootElement.firstChild;
+
+    if (child !== null) {
+      rootElement.removeChild(child);
+    }
+
+    const replay = document.getElementById('replay');
+    if (replay !== null) {
+      rootElement.removeChild(replay);
+    }
+
+    battleshipUI.interfaces.playerBoard = battleship.createGameboard(playerName);
+    battleshipUI.interfaces.computerBoard = battleship.createGameboard('Computer');
+    battleship.setUpComputerBoard(battleshipUI.interfaces.computerBoard);
+    battleshipUI.interfaces.gameController = battleship.createGameController(battleshipUI.interfaces.playerBoard, battleshipUI.interfaces.computerBoard);
+    battleshipUI.buildInitalPage();
+  },
+
+  addReplayButton() {
+    const root = battleshipUI.getRootElement();
+    const button = document.createElement('button');
+    button.id = 'replay';
+    button.setAttribute('type', 'button');
+    button.textContent = 'Play Again';
+    button.classList.add('btn');
+    button.addEventListener('click', battleshipUI.listeners.handleReplay);
+
+    root.appendChild(button);
+  },
+
   listeners: {
     handleNameForm(e) {
       e.preventDefault();
@@ -325,11 +357,7 @@ const battleshipUI = {
         const welcome = document.getElementById('welcome');
         welcome.parentNode.removeChild(welcome);
 
-        battleshipUI.interfaces.playerBoard = battleship.createGameboard(playerName.value);
-        battleshipUI.interfaces.computerBoard = battleship.createGameboard('Computer');
-        battleship.setUpComputerBoard(battleshipUI.interfaces.computerBoard);
-        battleshipUI.interfaces.gameController = battleship.createGameController(battleshipUI.interfaces.playerBoard, battleshipUI.interfaces.computerBoard);
-        battleshipUI.buildInitalPage();
+        battleshipUI.startNewGame(playerName.value);
       } else {
         alert('Name must not be blank.');
       }
@@ -374,6 +402,10 @@ const battleshipUI = {
           battleshipUI.doComputerAttack();
         }
       }
+
+      if (gamePhase === 'over') {
+        battleshipUI.addReplayButton();
+      }
     },
 
     finalizePlacementHandler(e) {
@@ -382,6 +414,11 @@ const battleshipUI = {
       battleshipUI.interfaces.gameController.finalizePlacement();
       battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
       battleshipUI.buildAttackPage();
+    },
+
+    handleReplay(e) {
+      e.preventDefault();
+      battleshipUI.startNewGame(battleshipUI.interfaces.playerBoard.getPlayerName());
     },
   },
 
