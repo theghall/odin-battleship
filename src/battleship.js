@@ -349,7 +349,7 @@ const battleship = {
 
     alreadyAttacked(coordinates, state, helpers) {
       const { row, col } = helpers.getRowCol(coordinates);
-      gridContent = state.board[row][col];
+      const gridContent = state.board[row][col];
 
       if (typeof gridContent === 'object') {
         const hullPosition = helpers.getHullPosition(
@@ -369,7 +369,7 @@ const battleship = {
 
     markAttacked(coordinates, state, helpers) {
       const { row, col } = helpers.getRowCol(coordinates);
-      gridContent = state.board[row][col];
+      const gridContent = state.board[row][col];
 
       if (typeof gridContent === 'object') {
         const hullPosition = helpers.getHullPosition(

@@ -629,7 +629,7 @@ const battleshipUI = {
     return table;
   },
 
-  createPlacementContainer(placeCallback) {
+  createPlacementContainer() {
     const div = document.createElement('div');
     div.id = 'placement';
 
