@@ -453,7 +453,7 @@ const battleshipUI = {
         }
       }
 
-      if (gamePhase === 'over') {
+      if (gamePhase === 'over' && !document.getElementById('replay')) {
         battleshipUI.addReplayButton();
       }
     },
