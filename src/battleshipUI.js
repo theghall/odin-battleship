@@ -411,9 +411,13 @@ const battleshipUI = {
     finalizePlacementHandler(e) {
       e.preventDefault();
 
-      battleshipUI.interfaces.gameController.finalizePlacement();
-      battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
-      battleshipUI.buildAttackPage();
+      if (battleshipUI.interfaces.playerBoard.allShipsPlaced()) {
+        battleshipUI.interfaces.gameController.finalizePlacement();
+        battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+        battleshipUI.buildAttackPage();
+      } else {
+        battleshipUI.updateInfo('You have not placed all your ships');
+      }
     },
 
     handleReplay(e) {
