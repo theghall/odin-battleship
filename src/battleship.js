@@ -412,7 +412,7 @@ const battleship = {
     },
   },
 
-  createGameController(board1, board2, displayController) {
+  createGameController(board1, board2) {
     const state = {
       phase: 'setup',
       activeGameboard: null,
