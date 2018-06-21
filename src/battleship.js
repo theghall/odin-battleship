@@ -97,11 +97,13 @@ const battleship = {
 
   tokenable: (state, helpers) => ({
     placeShip: (ship, shipPosition) => {
+      const shipCopy = Object.assign({}, ship);
+
       helpers.validateShipPosition(shipPosition, helpers);
 
-      helpers.validateShipPlacement(ship, shipPosition, state, helpers);
+      helpers.validateShipPlacement(shipCopy, shipPosition, state, helpers);
 
-      helpers.placeShip(ship, shipPosition, state, helpers);
+      helpers.placeShip(shipCopy, shipPosition, state, helpers);
     },
 
     removeShip: (ship) => {
