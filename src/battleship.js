@@ -13,27 +13,72 @@ const battleship = {
   },
 
   computerSetup1: () => [
-    {ship: battleship.ships.carrier, position: {bowCoordinates: 'A4', bowDirection: 270}},
-    {ship: battleship.ships.battleship, position: {bowCoordinates: 'F6', bowDirection: 0}},
-    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'I2', bowDirection: 0}},
-    {ship: battleship.ships.submarine, position: {bowCoordinates: 'I8', bowDirection: 0}},
-    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'B8', bowDirection: 0}},
+    {
+      ship: battleship.ships.carrier,
+      position: { bowCoordinates: 'A4', bowDirection: 270 },
+    },
+    {
+      ship: battleship.ships.battleship,
+      position: { bowCoordinates: 'F6', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.cruiser,
+      position: { bowCoordinates: 'I2', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.submarine,
+      position: { bowCoordinates: 'I8', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.destroyer,
+      position: { bowCoordinates: 'B8', bowDirection: 0 },
+    },
   ],
-  
+
   computerSetup2: () => [
-    {ship: battleship.ships.carrier, position: {bowCoordinates: 'F2', bowDirection: 270}},
-    {ship: battleship.ships.battleship, position: {bowCoordinates: 'F5', bowDirection: 270}},
-    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'F7', bowDirection: 270}},
-    {ship: battleship.ships.submarine, position: {bowCoordinates: 'C6', bowDirection: 0}},
-    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'C2', bowDirection: 0}}
+    {
+      ship: battleship.ships.carrier,
+      position: { bowCoordinates: 'F2', bowDirection: 270 },
+    },
+    {
+      ship: battleship.ships.battleship,
+      position: { bowCoordinates: 'F5', bowDirection: 270 },
+    },
+    {
+      ship: battleship.ships.cruiser,
+      position: { bowCoordinates: 'F7', bowDirection: 270 },
+    },
+    {
+      ship: battleship.ships.submarine,
+      position: { bowCoordinates: 'C6', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.destroyer,
+      position: { bowCoordinates: 'C2', bowDirection: 0 },
+    },
   ],
 
   computerSetup3: () => [
-    {ship: battleship.ships.carrier, position: {bowCoordinates: 'B5', bowDirection: 0}},
-    {ship: battleship.ships.battleship, position: {bowCoordinates: 'G2', bowDirection: 0}},
-    {ship: battleship.ships.cruiser, position: {bowCoordinates: 'D8', bowDirection: 0}},
-    {ship: battleship.ships.submarine, position: {bowCoordinates: 'J5', bowDirection: 0}},
-    {ship: battleship.ships.destroyer, position: {bowCoordinates: 'J1', bowDirection: 0}}
+    {
+      ship: battleship.ships.carrier,
+      position: { bowCoordinates: 'B5', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.battleship,
+      position: { bowCoordinates: 'G2', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.cruiser,
+      position: { bowCoordinates: 'D8', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.submarine,
+      position: { bowCoordinates: 'J5', bowDirection: 0 },
+    },
+    {
+      ship: battleship.ships.destroyer,
+      position: { bowCoordinates: 'J1', bowDirection: 0 },
+    },
   ],
 
   shipGetter: state => ({
@@ -53,7 +98,9 @@ const battleship = {
       state.hull[pos] = true;
     },
     isHit: pos => {
-      { return state.hull[pos] === true; }
+      {
+        return state.hull[pos] === true;
+      }
     },
     isSunk: () => !state.hull.includes(false),
   }),
@@ -82,17 +129,17 @@ const battleship = {
   }),
 
   attackable: (state, helpers) => ({
-    receiveAttack: (coordinates) => {
+    receiveAttack: coordinates => {
       if (!helpers.validCoordinates(coordinates)) {
-        return(battleship.INVALID);
+        return battleship.INVALID;
       }
 
       if (!helpers.alreadyAttacked(coordinates, state, helpers)) {
         return helpers.markAttacked(coordinates, state, helpers);
       } else {
         return battleship.ATTACKED;
-     }
-   }
+      }
+    },
   }),
 
   tokenable: (state, helpers) => ({
@@ -106,11 +153,11 @@ const battleship = {
       helpers.placeShip(shipCopy, shipPosition, state, helpers);
     },
 
-    removeShip: (ship) => {
+    removeShip: ship => {
       const shipPosition = ship.getPosition();
-      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+      const { row, col } = helpers.getRowCol(shipPosition.bowCoordinates);
 
-      ship.setPosition({bowCoordinates: null, bowDirection: null});
+      ship.setPosition({ bowCoordinates: null, bowDirection: null });
       state.ships.splice(state.ships.indexOf(ship));
 
       let posRow = row;
@@ -118,7 +165,11 @@ const battleship = {
 
       for (let pos = 0; pos < ship.getLength(); pos += 1) {
         state.board[posRow][posCol] = '';
-        const rowCol = helpers.calcNextRowCol(posRow, posCol, shipPosition.bowDirection);
+        const rowCol = helpers.calcNextRowCol(
+          posRow,
+          posCol,
+          shipPosition.bowDirection
+        );
         posRow = rowCol.newRow;
         posCol = rowCol.newCol;
       }
@@ -130,7 +181,7 @@ const battleship = {
       let placedShips = [];
 
       for (let key in battleship.ships) {
-        neededShips.push(battleship.ships[key].name)
+        neededShips.push(battleship.ships[key].name);
       }
 
       for (let i = 0; i < state.ships.length; i += 1) {
@@ -154,7 +205,7 @@ const battleship = {
       return !sunk.includes(false);
     },
 
-    getShip: (shipDesc) => {
+    getShip: shipDesc => {
       let ship = null;
 
       for (let i = 0; i < state.ships.length; i += 1) {
@@ -197,11 +248,11 @@ const battleship = {
           newCol += 1;
           break;
       }
-      return {newRow: newRow, newCol: newCol};
+      return { newRow: newRow, newCol: newCol };
     },
 
     placeShip(ship, shipPosition, state, helpers) {
-      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+      const { row, col } = helpers.getRowCol(shipPosition.bowCoordinates);
 
       ship.setPosition(shipPosition);
       state.ships.push(ship);
@@ -210,8 +261,12 @@ const battleship = {
       let posCol = col;
 
       for (let pos = 0; pos < ship.getLength(); pos += 1) {
-        state.board[posRow][posCol] = ship
-        const rowCol = helpers.calcNextRowCol(posRow, posCol, shipPosition.bowDirection);
+        state.board[posRow][posCol] = ship;
+        const rowCol = helpers.calcNextRowCol(
+          posRow,
+          posCol,
+          shipPosition.bowDirection
+        );
         posRow = rowCol.newRow;
         posCol = rowCol.newCol;
       }
@@ -227,20 +282,24 @@ const battleship = {
     },
 
     validateShipPlacement(ship, shipPosition, state, helpers) {
-      const {row, col}  = helpers.getRowCol(shipPosition.bowCoordinates);
+      const { row, col } = helpers.getRowCol(shipPosition.bowCoordinates);
 
       // Check if any part of ship is off board or overlaps another ship
       let checkCol = col;
       let checkRow = row;
 
       for (let pos = 0; pos < ship.getLength(); pos += 1) {
-        if ((checkCol < 0) || (checkCol > 9) || (checkRow < 0) || (checkRow > 9)) {
-          throw('No part of ship can be placed off the board');
+        if (checkCol < 0 || checkCol > 9 || checkRow < 0 || checkRow > 9) {
+          throw 'No part of ship can be placed off the board';
         }
-        if (typeof(state.board[checkRow][checkCol]) === 'object') {
-          throw('No part of ship can overlap another ship');
+        if (typeof state.board[checkRow][checkCol] === 'object') {
+          throw 'No part of ship can overlap another ship';
         }
-        const rowCol = helpers.calcNextRowCol(checkRow, checkCol, shipPosition.bowDirection);
+        const rowCol = helpers.calcNextRowCol(
+          checkRow,
+          checkCol,
+          shipPosition.bowDirection
+        );
 
         checkRow = rowCol.newRow;
         checkCol = rowCol.newCol;
@@ -249,18 +308,18 @@ const battleship = {
 
     validateShipPosition(shipPosition, helpers) {
       if (!helpers.validCoordinates(shipPosition.bowCoordinates)) {
-        throw('Ship position is invalid');
+        throw 'Ship position is invalid';
       }
 
       if (!helpers.validBowDirection(shipPosition.bowDirection)) {
-        throw('Ship must have a direction of 0, 90, 180 or 270');
+        throw 'Ship must have a direction of 0, 90, 180 or 270';
       }
     },
 
     getRowCol(coordinates) {
       const col = coordinates.charCodeAt(0) - 65;
-      const row = parseInt(coordinates.substring(1,3), 10) - 1;
-      return {row: row, col: col};
+      const row = parseInt(coordinates.substring(1, 3), 10) - 1;
+      return { row: row, col: col };
     },
 
     getHullPosition(ship, bRow, bCol, helpers) {
@@ -289,11 +348,16 @@ const battleship = {
     },
 
     alreadyAttacked(coordinates, state, helpers) {
-      const {row, col} = helpers.getRowCol(coordinates);
+      const { row, col } = helpers.getRowCol(coordinates);
       gridContent = state.board[row][col];
 
-      if (typeof(gridContent) === 'object') {
-        const hullPosition = helpers.getHullPosition( gridContent, row, col, helpers);
+      if (typeof gridContent === 'object') {
+        const hullPosition = helpers.getHullPosition(
+          gridContent,
+          row,
+          col,
+          helpers
+        );
         if (gridContent.isHit(hullPosition)) {
           return true;
         }
@@ -304,15 +368,19 @@ const battleship = {
     },
 
     markAttacked(coordinates, state, helpers) {
-      const {row, col} = helpers.getRowCol(coordinates);
+      const { row, col } = helpers.getRowCol(coordinates);
       gridContent = state.board[row][col];
 
-      if (typeof(gridContent) === 'object') {
-        const hullPosition = helpers.getHullPosition( gridContent, row, col, helpers);
+      if (typeof gridContent === 'object') {
+        const hullPosition = helpers.getHullPosition(
+          gridContent,
+          row,
+          col,
+          helpers
+        );
         gridContent.hit(hullPosition);
         return battleship.HIT;
-      }
-      else {
+      } else {
         state.board[row][col] = battleship.MISS;
         return battleship.MISS;
       }
@@ -334,18 +402,22 @@ const battleship = {
       ships: [],
     };
 
-    return Object.assign({}, battleship.boardGetter(state), battleship.attackable(state, battleship.boardHelpers), battleship.tokenable(state, battleship.boardHelpers));
+    return Object.assign(
+      {},
+      battleship.boardGetter(state),
+      battleship.attackable(state, battleship.boardHelpers),
+      battleship.tokenable(state, battleship.boardHelpers)
+    );
   },
 
   reportable: state => ({
     getStatus: () => state.gameStatus,
   }),
 
-  phaseable: (state, helpers)  => ({
+  phaseable: (state, helpers) => ({
     finalizePlacement: () => {
-
       if (state.phase !== 'setup') {
-        throw('An internal error occured');
+        throw 'An internal error occured';
       }
 
       const board1 = state.gameboards[0];
@@ -364,10 +436,9 @@ const battleship = {
       }
     },
 
-    attack: (coordinates) => {
-
+    attack: coordinates => {
       if (state.phase !== 'playing') {
-        throw('An internal error occured');
+        throw 'An internal error occured';
       }
 
       const board1 = state.gameboards[0];
@@ -379,8 +450,8 @@ const battleship = {
 
       if (state.activeGameboard.allShipsSunk()) {
         helpers.setGameOver(state, player1, player2, board1);
-      } 
-      
+      }
+
       if (state.phase !== 'over' && result !== battleship.ATTACKED) {
         helpers.setActiveGameboard(state, player1, player2, board1, board2);
       }
@@ -397,11 +468,11 @@ const battleship = {
       } else {
         state.winner = player1;
       }
-      state.phase = 'over'
+      state.phase = 'over';
       state.gameStatus = `${state.winner} is the winner`;
     },
 
-    setActiveGameboard(state, player1 ,player2, board1, board2) {
+    setActiveGameboard(state, player1, player2, board1, board2) {
       if (state.activeGameboard === board2) {
         state.gameStatus = `${player2} is thinking...`;
         state.activeGameboard = board1;
@@ -419,13 +490,21 @@ const battleship = {
       gameboards: [board1, board2],
       winner: null,
       gameStatus: 'Place your ships',
-   };
+    };
 
-   return Object.assign({}, battleship.reportable(state), battleship.phaseable(state, battleship.gcHelpers));
+    return Object.assign(
+      {},
+      battleship.reportable(state),
+      battleship.phaseable(state, battleship.gcHelpers)
+    );
   },
 
   setUpComputerBoard(gameboard) {
-    const setups = [battleship.computerSetup1, battleship.computerSetup2, battleship.computerSetup3];
+    const setups = [
+      battleship.computerSetup1,
+      battleship.computerSetup2,
+      battleship.computerSetup3,
+    ];
 
     const setup = setups[Math.floor(Math.random() * 3)]();
 
@@ -440,7 +519,6 @@ const battleship = {
     const row = Math.floor(Math.random() * 10) + 1;
     return `${col}${row}`;
   },
-
 };
 
 module.exports = battleship;

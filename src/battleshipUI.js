@@ -42,7 +42,7 @@ const battleshipUI = {
 
   getNextGridCoord(gridCoord, bowDirection) {
     let colCharCode = gridCoord.charCodeAt(0);
-    let row = parseInt(gridCoord.substring(1,3));
+    let row = parseInt(gridCoord.substring(1, 3));
 
     switch (bowDirection) {
       case 0:
@@ -59,9 +59,7 @@ const battleshipUI = {
         break;
     }
 
-    return `${String.fromCharCode(colCharCode)}${row}`
-
-
+    return `${String.fromCharCode(colCharCode)}${row}`;
   },
 
   updateInfo(msg) {
@@ -99,21 +97,23 @@ const battleshipUI = {
   },
 
   placeShip(ship, position) {
-    const shipObject = battleship.createShip(battleshipUI.getShip(ship), position);
+    const shipObject = battleship.createShip(
+      battleshipUI.getShip(ship),
+      position
+    );
 
     try {
       battleshipUI.interfaces.playerBoard.placeShip(shipObject, position);
       battleshipUI.markSquares(shipObject);
-    } catch(e) {
+    } catch (e) {
       battleshipUI.updateInfo(e);
     }
-
   },
 
   getShipDesc(shipName) {
     let shipDesc;
 
-    switch(shipName) {
+    switch (shipName) {
       case 'carrier':
         shipDesc = battleship.ships.carrier;
         break;
@@ -135,7 +135,9 @@ const battleshipUI = {
   },
 
   removeShip(shipName) {
-    const shipObject = battleshipUI.interfaces.playerBoard.getShip(battleshipUI.getShipDesc(shipName));
+    const shipObject = battleshipUI.interfaces.playerBoard.getShip(
+      battleshipUI.getShipDesc(shipName)
+    );
 
     if (shipObject === null) {
       battleshipUI.updateInfo(`${shipName} is not on the board`);
@@ -158,7 +160,10 @@ const battleshipUI = {
 
   createAttackGrid() {
     const computerGrid = battleshipUI.createBattleshipGrid('computer-board');
-    computerGrid.addEventListener('click', battleshipUI.listeners.attackHandler);
+    computerGrid.addEventListener(
+      'click',
+      battleshipUI.listeners.attackHandler
+    );
     return computerGrid;
   },
 
@@ -176,20 +181,30 @@ const battleshipUI = {
 
   addAttackPageRow2(attackWrapper, oldPlayerBoard) {
     // Add Player sideboard
-    const playerSideBoard = battleshipUI.createWrapperElement('player-sideboard');
+    const playerSideBoard = battleshipUI.createWrapperElement(
+      'player-sideboard'
+    );
     playerSideBoard.appendChild(oldPlayerBoard);
-    playerSideBoard.appendChild(battleshipUI.createWrapperElement('player-sunk'));
+    playerSideBoard.appendChild(
+      battleshipUI.createWrapperElement('player-sunk')
+    );
     attackWrapper.appendChild(playerSideBoard);
     // Add Attack grid
     attackWrapper.appendChild(battleshipUI.createAttackGrid());
     // Add computer sideboard
-    const computerSideBoard = battleshipUI.createWrapperElement('computer-sideboard');
-    computerSideBoard.appendChild(battleshipUI.createWrapperElement('computer-sunk'));
+    const computerSideBoard = battleshipUI.createWrapperElement(
+      'computer-sideboard'
+    );
+    computerSideBoard.appendChild(
+      battleshipUI.createWrapperElement('computer-sunk')
+    );
     attackWrapper.appendChild(computerSideBoard);
   },
 
   updateAllStatus() {
-    battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+    battleshipUI.updateStatus(
+      battleshipUI.interfaces.gameController.getStatus()
+    );
     battleshipUI.updateInfo('Click on a square to attack it');
     battleshipUI.updatePlayerSideboard();
     battleshipUI.updateComputerSideboard();
@@ -219,20 +234,20 @@ const battleshipUI = {
   },
 
   markPlayerResult(cell, result) {
-    switch(result) {
+    switch (result) {
       case battleship.HIT:
         battleshipUI.setImage(cell, largeExplosion);
         break;
       case battleship.MISS:
         battleshipUI.setImage(cell, largeSplash);
         break;
-      }
+    }
   },
 
   markComputerResult(attackCoordinates, result) {
     const cell = document.querySelector(`#player-board #${attackCoordinates}`);
 
-    switch(result) {
+    switch (result) {
       case battleship.HIT:
         battleshipUI.setImage(cell, smallExplosion);
         break;
@@ -264,22 +279,32 @@ const battleshipUI = {
     const playerShipsSunkElem = document.getElementById('player-sunk');
     const playerShipsSunk = battleshipUI.interfaces.playerBoard.getSunkShips();
 
-    battleshipUI.updateShipsSunk(playerShipsSunkElem, 'Your ships sunk:', playerShipsSunk);
+    battleshipUI.updateShipsSunk(
+      playerShipsSunkElem,
+      'Your ships sunk:',
+      playerShipsSunk
+    );
   },
 
   updateComputerSideboard() {
     const computerShipsSunkElem = document.getElementById('computer-sunk');
     const computerShipsSunk = battleshipUI.interfaces.computerBoard.getSunkShips();
 
-    battleshipUI.updateShipsSunk(computerShipsSunkElem, 'Computer ships sunk:', computerShipsSunk);
+    battleshipUI.updateShipsSunk(
+      computerShipsSunkElem,
+      'Computer ships sunk:',
+      computerShipsSunk
+    );
   },
 
   doPlayerAttack(cell) {
     const playerResult = battleshipUI.interfaces.gameController.attack(cell.id);
 
     if (playerResult === battleship.HIT || playerResult === battleship.MISS) {
-      battleshipUI.markPlayerResult(cell,playerResult);
-      battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+      battleshipUI.markPlayerResult(cell, playerResult);
+      battleshipUI.updateStatus(
+        battleshipUI.interfaces.gameController.getStatus()
+      );
       battleshipUI.updateComputerSideboard();
     } else {
       battleshipUI.updateInfo('That square has already been attacked');
@@ -292,17 +317,24 @@ const battleshipUI = {
     let attackCoordinates = null;
     let computerResult = null;
 
-    while (computerResult !== battleship.HIT && computerResult !== battleship.MISS) {
+    while (
+      computerResult !== battleship.HIT &&
+      computerResult !== battleship.MISS
+    ) {
       attackCoordinates = battleship.getComputerAttackCoordinates();
       try {
-        computerResult = battleshipUI.interfaces.gameController.attack(attackCoordinates);
+        computerResult = battleshipUI.interfaces.gameController.attack(
+          attackCoordinates
+        );
       } catch (e) {
         alert(e);
         break;
       }
 
       if (computerResult === battleship.INVALID) {
-        alert(`An internal error occured. Computer tried to attack ${attackCoordinates}`);
+        alert(
+          `An internal error occured. Computer tried to attack ${attackCoordinates}`
+        );
         break;
       }
       battleshipUI.updatePlayerSideboard();
@@ -310,7 +342,9 @@ const battleshipUI = {
 
     battleshipUI.markComputerResult(attackCoordinates, computerResult);
 
-    battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+    battleshipUI.updateStatus(
+      battleshipUI.interfaces.gameController.getStatus()
+    );
   },
 
   startNewGame(playerName) {
@@ -326,10 +360,17 @@ const battleshipUI = {
       rootElement.removeChild(replay);
     }
 
-    battleshipUI.interfaces.playerBoard = battleship.createGameboard(playerName);
-    battleshipUI.interfaces.computerBoard = battleship.createGameboard('Computer');
+    battleshipUI.interfaces.playerBoard = battleship.createGameboard(
+      playerName
+    );
+    battleshipUI.interfaces.computerBoard = battleship.createGameboard(
+      'Computer'
+    );
     battleship.setUpComputerBoard(battleshipUI.interfaces.computerBoard);
-    battleshipUI.interfaces.gameController = battleship.createGameController(battleshipUI.interfaces.playerBoard, battleshipUI.interfaces.computerBoard);
+    battleshipUI.interfaces.gameController = battleship.createGameController(
+      battleshipUI.interfaces.playerBoard,
+      battleshipUI.interfaces.computerBoard
+    );
     battleshipUI.buildInitalPage();
   },
 
@@ -352,7 +393,6 @@ const battleshipUI = {
       const form = e.target.parentNode;
       const playerName = form.querySelector('input[name="player-name"]');
 
-
       if (playerName.value != '') {
         const welcome = document.getElementById('welcome');
         welcome.parentNode.removeChild(welcome);
@@ -368,11 +408,21 @@ const battleshipUI = {
 
       const row = e.target.parentNode.parentNode;
       const shipName = row.firstChild.textContent;
-      const bowCoordinates = row.querySelector(`input[name=${battleshipUI.getShipCoordsName(shipName)}`);
-      const bowDirection = parseInt(row.querySelector(`select[name=${battleshipUI.getShipDirectionName(shipName)}`).value, 10);
+      const bowCoordinates = row.querySelector(
+        `input[name=${battleshipUI.getShipCoordsName(shipName)}`
+      );
+      const bowDirection = parseInt(
+        row.querySelector(
+          `select[name=${battleshipUI.getShipDirectionName(shipName)}`
+        ).value,
+        10
+      );
 
       battleshipUI.clearInfo();
-      battleshipUI.placeShip(shipName, {bowCoordinates: bowCoordinates.value, bowDirection: bowDirection});
+      battleshipUI.placeShip(shipName, {
+        bowCoordinates: bowCoordinates.value,
+        bowDirection: bowDirection,
+      });
     },
 
     removeHandler(e) {
@@ -387,7 +437,7 @@ const battleshipUI = {
 
     attackHandler(e) {
       e.preventDefault();
-      const cell = (e.target.nodeName === 'IMG' ? e.target.parentNode : e.target);
+      const cell = e.target.nodeName === 'IMG' ? e.target.parentNode : e.target;
 
       let gamePhase = battleshipUI.interfaces.gameController.getPhase();
 
@@ -413,7 +463,9 @@ const battleshipUI = {
 
       if (battleshipUI.interfaces.playerBoard.allShipsPlaced()) {
         battleshipUI.interfaces.gameController.finalizePlacement();
-        battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+        battleshipUI.updateStatus(
+          battleshipUI.interfaces.gameController.getStatus()
+        );
         battleshipUI.buildAttackPage();
       } else {
         battleshipUI.updateInfo('You have not placed all your ships');
@@ -422,7 +474,9 @@ const battleshipUI = {
 
     handleReplay(e) {
       e.preventDefault();
-      battleshipUI.startNewGame(battleshipUI.interfaces.playerBoard.getPlayerName());
+      battleshipUI.startNewGame(
+        battleshipUI.interfaces.playerBoard.getPlayerName()
+      );
     },
   },
 
@@ -462,7 +516,7 @@ const battleshipUI = {
     gridContainer.id = id;
     gridContainer.classList.add('battle-grid');
     gridContainer.classList.add('maximize');
-    
+
     battleshipUI.addGridCells(gridContainer);
 
     return gridContainer;
@@ -529,8 +583,12 @@ const battleshipUI = {
   createActionButtons() {
     const td = document.createElement('td');
 
-    td.appendChild(battleshipUI.createButton('Place', battleshipUI.listeners.placeHandler));
-    td.appendChild(battleshipUI.createButton('Remove', battleshipUI.listeners.removeHandler));
+    td.appendChild(
+      battleshipUI.createButton('Place', battleshipUI.listeners.placeHandler)
+    );
+    td.appendChild(
+      battleshipUI.createButton('Remove', battleshipUI.listeners.removeHandler)
+    );
 
     return td;
   },
@@ -555,7 +613,13 @@ const battleshipUI = {
   },
 
   createPlacementTable() {
-    const ships = ['carrier', 'battleship', 'cruiser', 'submarine', 'destroyer'];
+    const ships = [
+      'carrier',
+      'battleship',
+      'cruiser',
+      'submarine',
+      'destroyer',
+    ];
 
     const table = document.createElement('table');
 
@@ -570,7 +634,12 @@ const battleshipUI = {
     div.id = 'placement';
 
     div.appendChild(battleshipUI.createPlacementTable());
-    div.appendChild(battleshipUI.createButton('Finalize Placement', battleshipUI.listeners.finalizePlacementHandler));
+    div.appendChild(
+      battleshipUI.createButton(
+        'Finalize Placement',
+        battleshipUI.listeners.finalizePlacementHandler
+      )
+    );
 
     return div;
   },
@@ -605,10 +674,14 @@ const battleshipUI = {
     setupPage.appendChild(battleshipUI.createNoticeElement('status'));
     setupPage.appendChild(battleshipUI.createNoticeElement('info'));
     setupPage.appendChild(battleshipUI.createBattleshipGrid('player-board'));
-    setupPage.appendChild(battleshipUI.createPlacementContainer(battleshipUI.listeners.placeHandler));
+    setupPage.appendChild(
+      battleshipUI.createPlacementContainer(battleshipUI.listeners.placeHandler)
+    );
     rootElement.appendChild(setupPage);
 
-    battleshipUI.updateStatus(battleshipUI.interfaces.gameController.getStatus());
+    battleshipUI.updateStatus(
+      battleshipUI.interfaces.gameController.getStatus()
+    );
   },
 
   buildNameForm() {
@@ -622,12 +695,12 @@ const battleshipUI = {
     const form = document.createElement('form');
     form.id = 'player-name';
     form.setAttribute('action', '#');
-   
+
     const label = document.createElement('label');
     label.setAttribute('for', 'player-name');
     label.textContent = 'Name:';
     form.appendChild(label);
-   
+
     const input = document.createElement('input');
     input.setAttribute('type', 'text');
     input.setAttribute('name', 'player-name');
@@ -649,7 +722,6 @@ const battleshipUI = {
   init(playerBoard, computerBoard, gameController) {
     battleshipUI.buildNameForm();
   },
-
 };
 
 module.exports = battleshipUI;
