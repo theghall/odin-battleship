@@ -411,6 +411,9 @@ const battleshipUI = {
       const bowCoordinates = row.querySelector(
         `input[name=${battleshipUI.getShipCoordsName(shipName)}`
       );
+      let bowCoordinatesVal = bowCoordinates.value;
+      bowCoordinatesVal = bowCoordinatesVal.charAt(0).toUpperCase() + bowCoordinatesVal.slice(1);
+      bowCoordinates.value = bowCoordinatesVal;
       const bowDirection = parseInt(
         row.querySelector(
           `select[name=${battleshipUI.getShipDirectionName(shipName)}`
@@ -420,7 +423,7 @@ const battleshipUI = {
 
       battleshipUI.clearInfo();
       battleshipUI.placeShip(shipName, {
-        bowCoordinates: bowCoordinates.value,
+        bowCoordinates: bowCoordinatesVal,
         bowDirection: bowDirection,
       });
     },
