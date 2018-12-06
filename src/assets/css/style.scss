@@ -49,10 +49,10 @@ body {
 
 #setup-page {
   display: grid;
-  width: 800px;
-  height: 430px;
+  width: 850px;
+  height: 500px;
   grid-template-columns: repeat(2, 1fr);
-  grid-template-rows: 25px 400px;
+  grid-template-rows: 25px 475px;
 }
 
 #attack-page {
@@ -141,8 +141,8 @@ ul {
 }
 
 .maximize {
-  width: 400px;
-  height: 400px;
+  width: 450px;
+  height: 450px;
 }
 
 .minimize {
@@ -165,7 +165,11 @@ ul {
   float: left;
 }
 
-#placement table  {
+#placement table {
+  margin-top: 45px;
+}
+
+#placement table tr {
 
   td:nth-child(1),
   th:nth-child(1) {
@@ -184,6 +188,10 @@ ul {
   td:nth-child(3) select {
     margin-left: 10px;
   }
+
+  td:nth-child(4) button {
+    margin-bottom: 3px;
+  } 
 } 
 
 /* ==================== end style.css =========================*/
