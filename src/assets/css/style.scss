@@ -1,5 +1,8 @@
 /* ==================== Begin style.css =======================*/
 
+$playerboard-cell-edge: 18px;
+$computerboard-cell-edge: 43px;
+
 * {
   box-sizing: border-box;
 }
@@ -109,16 +112,36 @@ ul {
 
 .battle-grid {
   display: grid;
+  float: left;
   grid-template-columns:  repeat(11, 1fr);
   grid-template-rows:  repeat(11, 1fr);
-  float: left;
   margin-right: 5px;
+}
+
+#player-sideboard .battle-grid {
+  grid-template-columns:  repeat(11, $playerboard-cell-edge);
+  grid-template-rows:  repeat(11, $playerboard-cell-edge);
+}
+
+#computer-sideboard .battle-grid {
+  grid-template-columns:  repeat(11, $computerboard-cell-edge);
+  grid-template-rows:  repeat(11, $computerboard-cell-edge);
 }
 
 .cell {
   border: solid black 1px;
   background: lightblue;
   cursor: crosshair;
+}
+
+#player-sideboard .cell {
+  height: $playerboard-cell-edge;
+  width: $playerboard-cell-edge;
+}
+
+#computer-board .cell {
+  height: $computerboard-cell-edge;
+  width: $computerboard-cell-edge;
 }
 
 .cell img {
